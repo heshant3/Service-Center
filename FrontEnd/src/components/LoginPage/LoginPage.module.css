@@ -1,0 +1,97 @@
+.loginContainer {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginBox {
+  text-align: left;
+  margin: 0 auto;
+  width: 34em;
+  padding: 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.loginBox h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.loginBox p {
+  margin-bottom: 1.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.loginBox label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.loginBox input {
+  width: 90%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+}
+
+.radioGroup {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 1.5rem;
+}
+
+.radioGroup label {
+  font-size: 0.9rem;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loginButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.loginButton:hover {
+  background-color: #0056b3;
+}
+
+.loginBox a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.loginBox a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: #666;
+}

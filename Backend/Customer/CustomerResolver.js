@@ -1,0 +1,72 @@
+const bcrypt = require("bcryptjs"); // Add bcryptjs for password hashing
+
+module.exports = {
+  Query: {
+    getCustomersData: async (_, __, { db }) => {
+      return await db
+        .query("SELECT * FROM customersdata")
+        .then((res) => res.rows);
+    },
+    getCustomerDataById: async (_, { id }, { db }) => {
+      return await db
+        .query(
+          `SELECT cd.*, c.email, c.password 
+           FROM customersdata cd 
+           JOIN customers c ON cd.customer_id = c.id 
+           WHERE cd.id = $1`,
+          [id]
+        )
+        .then((res) => res.rows[0]);
+    },
+  },
+  Mutation: {
+    addCustomerData: async (
+      _,
+      { name, mobile, address, customer_id },
+      { db }
+    ) => {
+      const result = await db.query(
+        "INSERT INTO customersdata (name, mobile, address, customer_id) VALUES ($1, $2, $3, $4) RETURNING *",
+        [name, mobile, address, customer_id]
+      );
+      return result.rows[0];
+    },
+    updateCustomerData: async (
+      _,
+      { id, name, mobile, address, customer_id, email, password },
+      { db }
+    ) => {
+      let hashedPassword = null;
+      if (password) {
+        hashedPassword = await bcrypt.hash(password, 10);
+      }
+
+      const result = await db.query(
+        `UPDATE customersdata 
+         SET name = COALESCE($1, name), 
+             mobile = COALESCE($2, mobile), 
+             address = COALESCE($3, address), 
+             customer_id = COALESCE($4, customer_id) 
+         WHERE id = $5 
+         RETURNING *`,
+        [name, mobile, address, customer_id, id]
+      );
+
+      if (email || hashedPassword) {
+        await db.query(
+          `UPDATE customers 
+           SET email = COALESCE($1, email), 
+               password = COALESCE($2, password) 
+           WHERE id = (SELECT customer_id FROM customersdata WHERE id = $3)`,
+          [email, hashedPassword, id]
+        );
+      }
+
+      return result.rows[0];
+    },
+    deleteCustomerData: async (_, { id }, { db }) => {
+      await db.query("DELETE FROM customersdata WHERE id = $1", [id]);
+      return "Customer data deleted successfully.";
+    },
+  },
+};

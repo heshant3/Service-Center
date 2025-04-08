@@ -1,0 +1,329 @@
+.dashboardContainer {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.statCard p {
+  margin: 0;
+  font-size: 1rem;
+  color: #666;
+}
+
+.statCard h2 {
+  margin: 0.5rem 0 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.tableContainer {
+  margin-top: 2rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f1f1f1;
+  font-weight: bold;
+}
+
+.table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+
+.tableRow:hover {
+  background-color: #f1f1f1;
+}
+
+.statusConfirmed {
+  color: #155724;
+  background-color: #d4edda;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.statusPending {
+  color: #856404;
+  background-color: #fff3cd;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.statusCompleted {
+  color: #004085;
+  background-color: #cce5ff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.confirmButton,
+.cancelButton,
+.completedButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.confirmButton {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.confirmButton:hover {
+  background-color: #218838;
+}
+
+.cancelButton {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.cancelButton:hover {
+  background-color: #c82333;
+}
+
+.completedButton {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.completedButton:hover {
+  background-color: #0056b3;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.tabs button:hover {
+  background-color: #e0e0e0;
+}
+
+.activeTab {
+  background-color: #007bff;
+  color: #ffffff;
+  border-color: #007bff;
+}
+
+.profileContainer {
+  text-align: left;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.profileContainer h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+}
+
+.profileContainer p {
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.profileContainer h3 {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  color: #007bff;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.profileContainer ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.profileContainer li {
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profileContainer input[type="text"],
+.profileContainer input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.profileContainer input[type="text"]:focus,
+.profileContainer input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);
+}
+
+.profileContainer button {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.profileContainer button:hover {
+  background-color: #0056b3;
+}
+
+.profileContainer input[type="checkbox"] {
+  transform: scale(1.2);
+  margin-right: 0.5rem;
+}
+
+.profileContainer li input[type="number"] {
+  max-width: 150px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.buttonGroup button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.buttonGroup button:first-child {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.buttonGroup button:first-child:hover {
+  background-color: #218838;
+}
+
+.buttonGroup button:last-child {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.buttonGroup button:last-child:hover {
+  background-color: #c82333;
+}
