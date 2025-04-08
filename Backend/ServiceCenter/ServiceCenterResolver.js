@@ -47,7 +47,7 @@ module.exports = {
     getAllServiceCenterDetails: async (_, __, { db }) => {
       try {
         const serviceCenters = await db.query(
-          `SELECT scd.name, scd.address, scd.mobile, sc.email, scd.about, scd.businesshours, scd.imageurl, scd.service_center_id 
+          `SELECT scd.id, scd.name, scd.address, scd.mobile, sc.email, scd.about, scd.businesshours, scd.imageurl, scd.service_center_id 
            FROM serviceCentersData scd 
            LEFT JOIN service_centers sc ON scd.service_center_id = sc.id`
         );
@@ -66,6 +66,7 @@ module.exports = {
             );
 
             return {
+              id: center.id,
               ...center,
               businesshours: center.businesshours ?? "Not Available",
               imageurl: center.imageurl ?? "Not Available",
@@ -77,6 +78,40 @@ module.exports = {
         return serviceCenterDetails;
       } catch (error) {
         throw new Error("Failed to fetch service center details");
+      }
+    },
+    getAllServiceCenterDetailsByServiceCenterId: async (_, { id }, { db }) => {
+      try {
+        const serviceCenter = await db.query(
+          `SELECT scd.id, scd.name, scd.address, scd.mobile, sc.email, scd.about, scd.businesshours, scd.imageurl, scd.service_center_id 
+           FROM serviceCentersData scd 
+           LEFT JOIN service_centers sc ON scd.service_center_id = sc.id
+           WHERE scd.id = $1`,
+          [id]
+        );
+
+        if (serviceCenter.rows.length === 0) {
+          throw new Error("Service center not found");
+        }
+
+        const center = serviceCenter.rows[0];
+
+        const serviceTypes = await db.query(
+          `SELECT basic_price, half_service_price, full_service_price, comprehensive_price 
+           FROM service_types 
+           WHERE service_center_id = $1`,
+          [center.service_center_id]
+        );
+
+        return {
+          id: center.id,
+          ...center,
+          businesshours: center.businesshours ?? "Not Available",
+          imageurl: center.imageurl ?? "Not Available",
+          serviceTypes: serviceTypes.rows,
+        };
+      } catch (error) {
+        throw new Error("Failed to fetch service center details by ID");
       }
     },
   },

@@ -27,6 +27,10 @@ function App() {
               path="/service-center-details"
               element={<ServiceCenterDetails />}
             />
+            <Route
+              path="/service-center-details/:id"
+              element={<ServiceCenterDetails />}
+            />
             <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route

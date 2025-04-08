@@ -32,3 +32,15 @@ CREATE TABLE service_centers (
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add Booking table
+CREATE TABLE bookings (
+    id SERIAL PRIMARY KEY,
+    customer_id INT NOT NULL REFERENCES customers(id),
+    service_center_id INT NOT NULL REFERENCES service_centers(id),
+    service_type VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    price FLOAT NOT NULL,
+    status VARCHAR(50) NOT NULL
+);

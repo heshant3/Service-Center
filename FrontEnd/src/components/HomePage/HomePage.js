@@ -6,6 +6,7 @@ import styles from "./HomePage.module.css";
 const GET_ALL_SERVICE_CENTER_DETAILS = gql`
   query GetAllServiceCenterDetails {
     getAllServiceCenterDetails {
+      id
       name
       address
       mobile
@@ -34,8 +35,8 @@ const HomePage = () => {
     }
   }, [data]);
 
-  const handleViewDetails = () => {
-    navigate("/service-center-details");
+  const handleViewDetails = (service_center_id) => {
+    navigate(`/service-center-details/${service_center_id}`);
   };
 
   console.log("Service Centers:", serviceCenters);
@@ -48,17 +49,16 @@ const HomePage = () => {
       <h1>Find Service Centers</h1>
       <div className={styles.serviceCards}>
         {serviceCenters.map((center, index) => (
-          <div key={index} className={styles.card}>
+          <div
+            key={index}
+            className={styles.card}
+            onClick={() => handleViewDetails(center.id)}
+          >
             <img src={center.imageurl} alt={`${center.name} image`} />
             <h3>{center.name}</h3>
             <p>{center.address}</p>
             <p>{center.about}</p>
-            <button
-              className={styles.detailsButton}
-              onClick={handleViewDetails}
-            >
-              View Details
-            </button>
+            <button className={styles.detailsButton}>View Details</button>
           </div>
         ))}
       </div>

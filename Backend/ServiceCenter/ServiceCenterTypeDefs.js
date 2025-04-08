@@ -24,6 +24,7 @@ const serviceCenterTypeDefs = gql`
   }
 
   type ServiceCenterDetails {
+    id: ID!
     name: String!
     address: String!
     mobile: String!
@@ -42,6 +43,7 @@ const serviceCenterTypeDefs = gql`
     ): ServiceCenterData
     getServiceTypesByServiceCenterId(service_center_id: Int!): ServiceType
     getAllServiceCenterDetails: [ServiceCenterDetails]
+    getAllServiceCenterDetailsByServiceCenterId(id: ID!): ServiceCenterDetails
   }
 
   type Mutation {
