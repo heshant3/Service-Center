@@ -10,7 +10,8 @@ const serviceCenterTypeDefs = gql`
     email: String
     password: String
     about: String
-    businessHours: String
+    businesshours: String
+    imageurl: String
   }
 
   type ServiceType {
@@ -22,6 +23,17 @@ const serviceCenterTypeDefs = gql`
     comprehensive_price: Int!
   }
 
+  type ServiceCenterDetails {
+    name: String!
+    address: String!
+    mobile: String!
+    email: String
+    about: String
+    businesshours: String
+    imageurl: String
+    serviceTypes: [ServiceType]
+  }
+
   type Query {
     getServiceCentersData: [ServiceCenterData]
     getServiceCenterDataById(id: ID!): ServiceCenterData
@@ -29,6 +41,7 @@ const serviceCenterTypeDefs = gql`
       service_center_id: Int
     ): ServiceCenterData
     getServiceTypesByServiceCenterId(service_center_id: Int!): ServiceType
+    getAllServiceCenterDetails: [ServiceCenterDetails]
   }
 
   type Mutation {
@@ -40,7 +53,8 @@ const serviceCenterTypeDefs = gql`
       email: String
       password: String
       about: String
-      businessHours: String
+      businesshours: String
+      imageurl: String
     ): ServiceCenterData
     updateServiceCenterData(
       service_center_id: Int!
@@ -50,7 +64,8 @@ const serviceCenterTypeDefs = gql`
       email: String
       password: String
       about: String
-      businessHours: String
+      businesshours: String
+      imageurl: String
     ): ServiceCenterData
     deleteServiceCenterData(id: ID!): String
     addServiceType(

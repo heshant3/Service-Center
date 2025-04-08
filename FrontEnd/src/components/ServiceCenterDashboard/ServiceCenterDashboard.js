@@ -14,8 +14,10 @@ const GET_SERVICE_CENTER_DATA_BY_SERVICE_CENTER_ID = gql`
       address
       service_center_id
       email
+      password
+      imageurl
+      businesshours
       about
-      businessHours
     }
   }
 `;
@@ -29,7 +31,8 @@ const UPDATE_SERVICE_CENTER_DATA = gql`
     $email: String
     $password: String
     $about: String
-    $businessHours: String
+    $businesshours: String
+    $imageurl: String
   ) {
     updateServiceCenterData(
       service_center_id: $service_center_id
@@ -39,15 +42,16 @@ const UPDATE_SERVICE_CENTER_DATA = gql`
       email: $email
       password: $password
       about: $about
-      businessHours: $businessHours
+      businesshours: $businesshours
+      imageurl: $imageurl
     ) {
       id
       name
       mobile
       address
-      service_center_id
       about
-      businessHours
+      businesshours
+      imageurl
     }
   }
 `;
@@ -101,8 +105,9 @@ const ServiceCenterDashboard = () => {
     service_center_id: "",
     email: "",
     password: "",
-    about: "", // Add about field
-    businessHours: "", // Add businessHours field
+    about: "",
+    businesshours: "",
+    imageurl: "", // Add imageurl field
   });
   const [tempProfile, setTempProfile] = useState({ ...profile });
 
@@ -170,7 +175,8 @@ const ServiceCenterDashboard = () => {
           email,
           password,
           about,
-          businessHours,
+          businesshours,
+          imageurl, // Extract imageurl field
         } = data.getServiceCenterDataByServiceCenterId;
         setProfile({
           name,
@@ -179,8 +185,9 @@ const ServiceCenterDashboard = () => {
           service_center_id,
           email,
           password,
-          about, // Set about field
-          businessHours, // Set businessHours field
+          about,
+          businesshours,
+          imageurl, // Set imageurl field
         });
       } else {
         console.warn(
@@ -452,9 +459,19 @@ const ServiceCenterDashboard = () => {
                   <strong>Business Hours:</strong>{" "}
                   <input
                     type="text"
-                    name="businessHours"
-                    value={tempProfile.businessHours}
-                    placeholder={profile.businessHours}
+                    name="businesshours"
+                    value={tempProfile.businesshours}
+                    placeholder={profile.businesshours}
+                    onChange={handleProfileChange}
+                  />
+                </p>
+                <p>
+                  <strong>Image URL:</strong>{" "}
+                  <input
+                    type="text"
+                    name="imageurl"
+                    value={tempProfile.imageurl}
+                    placeholder={profile.imageurl}
                     onChange={handleProfileChange}
                   />
                 </p>
@@ -484,7 +501,10 @@ const ServiceCenterDashboard = () => {
                   <strong>About:</strong> {profile.about}
                 </p>
                 <p>
-                  <strong>Business Hours:</strong> {profile.businessHours}
+                  <strong>Business Hours:</strong> {profile.businesshours}
+                </p>
+                <p>
+                  <strong>Image URL:</strong> {profile.imageurl}
                 </p>
                 <button onClick={() => setIsEditingProfile(true)}>Edit</button>
               </>

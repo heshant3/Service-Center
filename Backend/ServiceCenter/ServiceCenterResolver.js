@@ -44,6 +44,41 @@ module.exports = {
         ])
         .then((res) => res.rows[0]);
     },
+    getAllServiceCenterDetails: async (_, __, { db }) => {
+      try {
+        const serviceCenters = await db.query(
+          `SELECT scd.name, scd.address, scd.mobile, sc.email, scd.about, scd.businesshours, scd.imageurl, scd.service_center_id 
+           FROM serviceCentersData scd 
+           LEFT JOIN service_centers sc ON scd.service_center_id = sc.id`
+        );
+
+        const serviceCenterDetails = await Promise.all(
+          serviceCenters.rows.map(async (center) => {
+            if (!center.service_center_id) {
+              return { ...center, serviceTypes: [] };
+            }
+
+            const serviceTypes = await db.query(
+              `SELECT basic_price, half_service_price, full_service_price, comprehensive_price 
+               FROM service_types 
+               WHERE service_center_id = $1`,
+              [center.service_center_id]
+            );
+
+            return {
+              ...center,
+              businesshours: center.businesshours ?? "Not Available",
+              imageurl: center.imageurl ?? "Not Available",
+              serviceTypes: serviceTypes.rows,
+            };
+          })
+        );
+
+        return serviceCenterDetails;
+      } catch (error) {
+        throw new Error("Failed to fetch service center details");
+      }
+    },
   },
   Mutation: {
     addServiceCenterData: async (
@@ -56,7 +91,8 @@ module.exports = {
         email,
         password,
         about,
-        businessHours,
+        businesshours,
+        imageurl,
       },
       { db }
     ) => {
@@ -66,8 +102,19 @@ module.exports = {
       }
 
       const result = await db.query(
-        "INSERT INTO serviceCentersData (name, mobile, address, service_center_id, about, businessHours) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-        [name, mobile, address, service_center_id, about, businessHours]
+        `INSERT INTO serviceCentersData 
+         (name, mobile, address, service_center_id, about, businesshours, imageurl) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7) 
+         RETURNING *`,
+        [
+          name,
+          mobile,
+          address,
+          service_center_id,
+          about,
+          businesshours || "Not Available",
+          imageurl || "Not Available",
+        ]
       );
 
       if (email || hashedPassword) {
@@ -89,7 +136,8 @@ module.exports = {
         email,
         password,
         about,
-        businessHours,
+        businesshours,
+        imageurl,
       },
       { db }
     ) => {
@@ -104,10 +152,19 @@ module.exports = {
              mobile = COALESCE($2, mobile), 
              address = COALESCE($3, address), 
              about = COALESCE($4, about), 
-             businessHours = COALESCE($5, businessHours) 
-         WHERE service_center_id = $6 
+             businesshours = COALESCE($5, businesshours), 
+             imageurl = COALESCE($6, imageurl) 
+         WHERE service_center_id = $7 
          RETURNING *`,
-        [name, mobile, address, about, businessHours, service_center_id]
+        [
+          name,
+          mobile,
+          address,
+          about,
+          businesshours || "Not Available",
+          imageurl || "Not Available",
+          service_center_id,
+        ]
       );
 
       if (email || hashedPassword) {
