@@ -9,6 +9,8 @@ const serviceCenterTypeDefs = gql`
     service_center_id: Int
     email: String
     password: String
+    about: String
+    businessHours: String
   }
 
   type ServiceType {
@@ -37,6 +39,8 @@ const serviceCenterTypeDefs = gql`
       service_center_id: Int
       email: String
       password: String
+      about: String
+      businessHours: String
     ): ServiceCenterData
     updateServiceCenterData(
       service_center_id: Int!
@@ -45,6 +49,8 @@ const serviceCenterTypeDefs = gql`
       address: String
       email: String
       password: String
+      about: String
+      businessHours: String
     ): ServiceCenterData
     deleteServiceCenterData(id: ID!): String
     addServiceType(
@@ -55,7 +61,7 @@ const serviceCenterTypeDefs = gql`
       comprehensive_price: Int!
     ): ServiceType
     updateServiceType(
-      id: ID!
+      service_center_id: Int!
       basic_price: Int
       half_service_price: Int
       full_service_price: Int

@@ -48,7 +48,16 @@ module.exports = {
   Mutation: {
     addServiceCenterData: async (
       _,
-      { name, mobile, address, service_center_id, email, password },
+      {
+        name,
+        mobile,
+        address,
+        service_center_id,
+        email,
+        password,
+        about,
+        businessHours,
+      },
       { db }
     ) => {
       let hashedPassword = null;
@@ -57,8 +66,8 @@ module.exports = {
       }
 
       const result = await db.query(
-        "INSERT INTO serviceCentersData (name, mobile, address, service_center_id) VALUES ($1, $2, $3, $4) RETURNING *",
-        [name, mobile, address, service_center_id]
+        "INSERT INTO serviceCentersData (name, mobile, address, service_center_id, about, businessHours) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+        [name, mobile, address, service_center_id, about, businessHours]
       );
 
       if (email || hashedPassword) {
@@ -72,7 +81,16 @@ module.exports = {
     },
     updateServiceCenterData: async (
       _,
-      { service_center_id, name, mobile, address, email, password },
+      {
+        service_center_id,
+        name,
+        mobile,
+        address,
+        email,
+        password,
+        about,
+        businessHours,
+      },
       { db }
     ) => {
       let hashedPassword = null;
@@ -84,10 +102,12 @@ module.exports = {
         `UPDATE serviceCentersData 
          SET name = COALESCE($1, name), 
              mobile = COALESCE($2, mobile), 
-             address = COALESCE($3, address) 
-         WHERE service_center_id = $4 
+             address = COALESCE($3, address), 
+             about = COALESCE($4, about), 
+             businessHours = COALESCE($5, businessHours) 
+         WHERE service_center_id = $6 
          RETURNING *`,
-        [name, mobile, address, service_center_id]
+        [name, mobile, address, about, businessHours, service_center_id]
       );
 
       if (email || hashedPassword) {
@@ -135,7 +155,7 @@ module.exports = {
     updateServiceType: async (
       _,
       {
-        id,
+        service_center_id,
         basic_price,
         half_service_price,
         full_service_price,
@@ -149,14 +169,14 @@ module.exports = {
              half_service_price = COALESCE($2, half_service_price), 
              full_service_price = COALESCE($3, full_service_price), 
              comprehensive_price = COALESCE($4, comprehensive_price) 
-         WHERE id = $5 
+         WHERE service_center_id = $5 
          RETURNING *`,
         [
           basic_price,
           half_service_price,
           full_service_price,
           comprehensive_price,
-          id,
+          service_center_id,
         ]
       );
       return result.rows[0];

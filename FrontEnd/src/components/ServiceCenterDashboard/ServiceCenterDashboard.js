@@ -14,6 +14,8 @@ const GET_SERVICE_CENTER_DATA_BY_SERVICE_CENTER_ID = gql`
       address
       service_center_id
       email
+      about
+      businessHours
     }
   }
 `;
@@ -26,6 +28,8 @@ const UPDATE_SERVICE_CENTER_DATA = gql`
     $address: String
     $email: String
     $password: String
+    $about: String
+    $businessHours: String
   ) {
     updateServiceCenterData(
       service_center_id: $service_center_id
@@ -34,12 +38,54 @@ const UPDATE_SERVICE_CENTER_DATA = gql`
       address: $address
       email: $email
       password: $password
+      about: $about
+      businessHours: $businessHours
     ) {
       id
       name
       mobile
       address
       service_center_id
+      about
+      businessHours
+    }
+  }
+`;
+
+const GET_SERVICE_TYPES_BY_SERVICE_CENTER_ID = gql`
+  query GetServiceTypesByServiceCenterId($service_center_id: Int!) {
+    getServiceTypesByServiceCenterId(service_center_id: $service_center_id) {
+      id
+      service_center_id
+      basic_price
+      half_service_price
+      full_service_price
+      comprehensive_price
+    }
+  }
+`;
+
+const UPDATE_SERVICE_TYPE = gql`
+  mutation UpdateServiceType(
+    $service_center_id: Int!
+    $basic_price: Int
+    $half_service_price: Int
+    $full_service_price: Int
+    $comprehensive_price: Int
+  ) {
+    updateServiceType(
+      service_center_id: $service_center_id
+      basic_price: $basic_price
+      half_service_price: $half_service_price
+      full_service_price: $full_service_price
+      comprehensive_price: $comprehensive_price
+    ) {
+      id
+      service_center_id
+      basic_price
+      half_service_price
+      full_service_price
+      comprehensive_price
     }
   }
 `;
@@ -55,21 +101,14 @@ const ServiceCenterDashboard = () => {
     service_center_id: "",
     email: "",
     password: "",
+    about: "", // Add about field
+    businessHours: "", // Add businessHours field
   });
   const [tempProfile, setTempProfile] = useState({ ...profile });
 
   const [isEditingServices, setIsEditingServices] = useState(false);
-  const [services, setServices] = useState([
-    { name: "Basic / Minor / Interim Service", price: 50000, selected: true },
-    { name: "Half Service / Medium Service", price: 20000, selected: true },
-    { name: "Full Service / Major Service", price: 30000, selected: true },
-    {
-      name: "Comprehensive / Engine Tune-up Service",
-      price: 60000,
-      selected: true,
-    },
-  ]);
-  const [tempServices, setTempServices] = useState([...services]);
+  const [services, setServices] = useState([]);
+  const [tempServices, setTempServices] = useState([]);
 
   const appointments = [
     {
@@ -105,7 +144,16 @@ const ServiceCenterDashboard = () => {
     }
   );
 
+  const {
+    data: serviceTypesData,
+    loading: serviceTypesLoading,
+    error: serviceTypesError,
+  } = useQuery(GET_SERVICE_TYPES_BY_SERVICE_CENTER_ID, {
+    variables: { service_center_id: serviceCenterId },
+  });
+
   const [updateServiceCenterData] = useMutation(UPDATE_SERVICE_CENTER_DATA);
+  const [updateServiceType] = useMutation(UPDATE_SERVICE_TYPE);
 
   useEffect(() => {
     refetch(); // Refetch data when the page loads
@@ -114,8 +162,16 @@ const ServiceCenterDashboard = () => {
   useEffect(() => {
     if (data) {
       if (data.getServiceCenterDataByServiceCenterId) {
-        const { name, mobile, address, service_center_id, email, password } =
-          data.getServiceCenterDataByServiceCenterId;
+        const {
+          name,
+          mobile,
+          address,
+          service_center_id,
+          email,
+          password,
+          about,
+          businessHours,
+        } = data.getServiceCenterDataByServiceCenterId;
         setProfile({
           name,
           mobile,
@@ -123,6 +179,8 @@ const ServiceCenterDashboard = () => {
           service_center_id,
           email,
           password,
+          about, // Set about field
+          businessHours, // Set businessHours field
         });
       } else {
         console.warn(
@@ -132,10 +190,53 @@ const ServiceCenterDashboard = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (serviceTypesData) {
+      const {
+        basic_price,
+        half_service_price,
+        full_service_price,
+        comprehensive_price,
+      } = serviceTypesData.getServiceTypesByServiceCenterId;
+
+      const fetchedServices = [
+        {
+          name: "Basic / Minor / Interim Service",
+          price: basic_price,
+          selected: true,
+        },
+        {
+          name: "Half Service / Medium Service",
+          price: half_service_price,
+          selected: true,
+        },
+        {
+          name: "Full Service / Major Service",
+          price: full_service_price,
+          selected: true,
+        },
+        {
+          name: "Comprehensive / Engine Tune-up Service",
+          price: comprehensive_price,
+          selected: true,
+        },
+      ];
+
+      setServices(fetchedServices);
+      setTempServices(fetchedServices);
+    }
+  }, [serviceTypesData]);
+
   if (loading) return <p>Loading...</p>;
   if (error) {
     console.error("Error fetching service center data:", error);
     return <p>Error loading service center data. Please try again later.</p>;
+  }
+
+  if (serviceTypesLoading) return <p>Loading service types...</p>;
+  if (serviceTypesError) {
+    console.error("Error fetching service types:", serviceTypesError);
+    return <p>Error loading service types. Please try again later.</p>;
   }
 
   const handleRowClick = (appointment) => {
@@ -176,18 +277,19 @@ const ServiceCenterDashboard = () => {
         });
         await refetch(); // Refetch data after updating
         setProfile((prevProfile) => ({ ...prevProfile, ...updatedFields }));
-        toast.success("Profile updated successfully!"); // Show success toast
+        toast.success("Profile updated successfully!"); // Success toast
       }
       setIsEditingProfile(false);
     } catch (error) {
-      toast.error("Failed to update profile. Please try again."); // Show error toast
       console.error("Error updating service center data:", error);
+      toast.error("Failed to update profile. Please try again."); // Error toast
     }
   };
 
   const handleCancelEdit = () => {
     setTempProfile(profile);
     setIsEditingProfile(false);
+    toast.info("Profile edit canceled."); // Info toast
   };
 
   const handleServiceChange = (index, field, value) => {
@@ -196,9 +298,39 @@ const ServiceCenterDashboard = () => {
     setTempServices(updatedServices);
   };
 
-  const handleSaveServices = () => {
-    setServices(tempServices);
-    setIsEditingServices(false);
+  const handleSaveServices = async () => {
+    try {
+      // Convert price values to integers
+      const updatedPrices = {
+        basic_price: parseInt(tempServices[0]?.price, 10) || 0,
+        half_service_price: parseInt(tempServices[1]?.price, 10) || 0,
+        full_service_price: parseInt(tempServices[2]?.price, 10) || 0,
+        comprehensive_price: parseInt(tempServices[3]?.price, 10) || 0,
+      };
+
+      console.log("Updating service prices with variables:", {
+        service_center_id: serviceCenterId,
+        ...updatedPrices,
+      });
+
+      // Execute mutation
+      const response = await updateServiceType({
+        variables: {
+          service_center_id: serviceCenterId,
+          ...updatedPrices,
+        },
+      });
+
+      console.log("Mutation response:", response);
+      toast.success("Service prices updated successfully!");
+      setServices(tempServices);
+      setIsEditingServices(false);
+
+      // Show success toast
+    } catch (error) {
+      console.error("Error updating service prices:", error);
+      toast.error("Failed to update service prices. Please try again.");
+    }
   };
 
   const handleCancelServicesEdit = () => {
@@ -211,6 +343,7 @@ const ServiceCenterDashboard = () => {
       case "appointments":
         return (
           <div className={styles.tableContainer}>
+            {" "}
             <h2>Recent Appointments</h2>
             <table className={styles.table}>
               <thead>
@@ -306,6 +439,25 @@ const ServiceCenterDashboard = () => {
                     onChange={handleProfileChange}
                   />
                 </p>
+                <p>
+                  <strong>About:</strong>{" "}
+                  <textarea
+                    name="about"
+                    value={tempProfile.about}
+                    placeholder={profile.about}
+                    onChange={handleProfileChange}
+                  />
+                </p>
+                <p>
+                  <strong>Business Hours:</strong>{" "}
+                  <input
+                    type="text"
+                    name="businessHours"
+                    value={tempProfile.businessHours}
+                    placeholder={profile.businessHours}
+                    onChange={handleProfileChange}
+                  />
+                </p>
                 <div className={styles.buttonGroup}>
                   <button onClick={handleSaveProfile}>Save</button>
                   <button onClick={handleCancelEdit}>Cancel</button>
@@ -327,6 +479,12 @@ const ServiceCenterDashboard = () => {
                 </p>
                 <p>
                   <strong>Password:</strong> ********
+                </p>
+                <p>
+                  <strong>About:</strong> {profile.about}
+                </p>
+                <p>
+                  <strong>Business Hours:</strong> {profile.businessHours}
                 </p>
                 <button onClick={() => setIsEditingProfile(true)}>Edit</button>
               </>
@@ -354,7 +512,7 @@ const ServiceCenterDashboard = () => {
                         readOnly
                         style={{ border: "none", background: "transparent" }}
                       />{" "}
-                      -{" "}
+                      Rs.
                       <input
                         type="number"
                         value={service.price}
@@ -375,7 +533,7 @@ const ServiceCenterDashboard = () => {
                 <ul>
                   {services.map((service, index) => (
                     <li key={index}>
-                      {service.name} - <strong>{service.price}</strong>
+                      {service.name} - <strong>Rs. {service.price}</strong>
                     </li>
                   ))}
                 </ul>

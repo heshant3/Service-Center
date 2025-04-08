@@ -80,6 +80,12 @@ const resolvers = {
         ["", "", "", serviceCenter.id]
       );
 
+      // Create an empty entry in the service_types table
+      await db.query(
+        "INSERT INTO service_types (service_center_id, basic_price, half_service_price, full_service_price, comprehensive_price) VALUES ($1, $2, $3, $4, $5)",
+        [serviceCenter.id, 0, 0, 0, 0]
+      );
+
       return serviceCenter;
     },
     loginServiceCenter: async (_, { email, password }) => {
