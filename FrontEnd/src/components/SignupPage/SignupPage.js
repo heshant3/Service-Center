@@ -83,14 +83,6 @@ const SignupPage = () => {
         <h2>Signup</h2>
         <p>Fill in the details to create your account</p>
         <form onSubmit={handleSubmit}>
-          <label>Full Name</label>
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Enter your full name"
-            value={formData.fullName}
-            onChange={handleInputChange}
-          />
           <label>Email</label>
           <input
             type="email"

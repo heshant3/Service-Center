@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client"; // Import Apollo Client hooks
 import styles from "./CustomerDashboard.module.css";
+import { toast, Toaster } from "sonner";
 
 // GraphQL query to fetch customer data by ID
 const GET_CUSTOMER_DATA_BY_ID = gql`
@@ -64,6 +65,13 @@ const GET_BOOKINGS_BY_CUSTOMER_ID = gql`
   }
 `;
 
+// GraphQL mutation to cancel a booking by ID
+const CANCEL_BOOKING_BY_ID = gql`
+  mutation CancelBookingById($bookingId: ID!) {
+    cancelBookingById(bookingId: $bookingId)
+  }
+`;
+
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
   const [showModal, setShowModal] = useState(false);
@@ -80,6 +88,8 @@ const CustomerDashboard = () => {
   // Fetch customer ID from local storage
   const customerId = localStorage.getItem("customerId");
 
+  console.log(customerId);
+
   // Use Apollo Client's useQuery hook to fetch data
   const { data, loading, error } = useQuery(GET_CUSTOMER_DATA_BY_ID, {
     variables: { id: customerId },
@@ -91,6 +101,7 @@ const CustomerDashboard = () => {
     data: bookingsData,
     loading: bookingsLoading,
     error: bookingsError,
+    refetch: refetchBookings, // Add refetch function
   } = useQuery(GET_BOOKINGS_BY_CUSTOMER_ID, {
     variables: { customerId },
     skip: !customerId,
@@ -98,6 +109,9 @@ const CustomerDashboard = () => {
 
   // Use Apollo Client's useMutation hook to update data
   const [updateCustomerData] = useMutation(UPDATE_CUSTOMER_DATA); // Initialize mutation
+
+  // Use Apollo Client's useMutation hook to cancel a booking
+  const [cancelBooking] = useMutation(CANCEL_BOOKING_BY_ID);
 
   // Update profile state when data is fetched
   useEffect(() => {
@@ -124,6 +138,16 @@ const CustomerDashboard = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedBooking(null);
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      await cancelBooking({ variables: { bookingId } });
+      toast.success("Booking canceled successfully!");
+      refetchBookings(); // Refetch bookings after cancellation
+    } catch (error) {
+      toast.error("Failed to cancel booking.");
+    }
   };
 
   const handleEditToggle = async () => {
@@ -156,13 +180,11 @@ const CustomerDashboard = () => {
               ...updatedFields,
             },
           });
-          alert("Profile updated successfully!");
         } else {
-          alert("No changes detected.");
+          toast.error("No changes detected.");
         }
       } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Failed to update profile.");
+        toast.error("Failed to update profile.", error);
       }
     }
     setIsEditing(!isEditing);
@@ -171,6 +193,19 @@ const CustomerDashboard = () => {
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
     setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Confirmed":
+        return styles.statusConfirmed; // Blue
+      case "Completed":
+        return styles.statusCompleted; // Green
+      case "Cancelled":
+        return styles.statusCancelled; // Red
+      default:
+        return styles.statusPending; // Default (Pending)
+    }
   };
 
   const renderContent = () => {
@@ -192,32 +227,27 @@ const CustomerDashboard = () => {
                   </p>
                   <button onClick={() => handleViewDetails(booking)}>
                     View Details
-                  </button>{" "}
-                  |{" "}
-                  <a href="#" className={styles.cancel}>
-                    Cancel
-                  </a>
+                  </button>
+                  {["Confirmed", "Pending"].includes(booking.status) && (
+                    <>
+                      {" | "}
+                      <button
+                        className={styles.cancel}
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </div>
-                <span
-                  className={
-                    booking.status === "Confirmed"
-                      ? styles.statusConfirmed
-                      : styles.statusPending
-                  }
-                >
+                <span className={getStatusClass(booking.status)}>
                   {booking.status}
                 </span>
               </div>
             ))}
           </div>
         );
-      case "history":
-        return (
-          <div className={styles.tabContent}>
-            <h3>Service History</h3>
-            <p>No service history available.</p>
-          </div>
-        );
+
       case "profile":
         return (
           <div className={`${styles.tabContent} ${styles.personalInfo}`}>
@@ -302,16 +332,14 @@ const CustomerDashboard = () => {
 
   return (
     <div className={styles.dashboardContainer}>
+      <Toaster />
       <h1>Customer Dashboard</h1>
       <div className={styles.stats}>
         <div className={styles.statCard}>Welcome</div>
+
         <div className={styles.statCard}>
-          <p>Upcoming Appointments</p>
-          <h2>1</h2>
-        </div>
-        <div className={styles.statCard}>
-          <p>Pending Appointments</p>
-          <h2>1</h2>
+          <p>Total Appointments</p>
+          <h2>{bookingsData?.getBookingsByCustomerId?.length || 0}</h2>
         </div>
       </div>
       <div className={styles.tabs}>
@@ -319,14 +347,11 @@ const CustomerDashboard = () => {
           className={activeTab === "appointments" ? styles.activeTab : ""}
           onClick={() => setActiveTab("appointments")}
         >
-          My Appointments
+          Appointments{" "}
+          {bookingsData?.getBookingsByCustomerId?.length > 0 &&
+            `(${bookingsData.getBookingsByCustomerId.length})`}
         </button>
-        <button
-          className={activeTab === "history" ? styles.activeTab : ""}
-          onClick={() => setActiveTab("history")}
-        >
-          Service History
-        </button>
+
         <button
           className={activeTab === "profile" ? styles.activeTab : ""}
           onClick={() => setActiveTab("profile")}
@@ -368,13 +393,7 @@ const CustomerDashboard = () => {
               <div className={styles.status}>
                 <p>
                   <strong>Status:</strong>{" "}
-                  <span
-                    className={
-                      selectedBooking.status === "Confirmed"
-                        ? styles.statusConfirmed
-                        : styles.statusPending
-                    }
-                  >
+                  <span className={getStatusClass(selectedBooking.status)}>
                     {selectedBooking.status}
                   </span>
                 </p>

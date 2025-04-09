@@ -1,8 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./NavigationBar.module.css";
 
 const NavigationBar = () => {
+  const navigate = useNavigate();
+  const isLoggedIn =
+    localStorage.getItem("customerId") ||
+    localStorage.getItem("adminId") ||
+    localStorage.getItem("serviceCenterId");
+
+  const handleLogout = () => {
+    localStorage.clear(); // Clear all user data
+    navigate("/"); // Redirect to the home page
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -10,16 +21,26 @@ const NavigationBar = () => {
       </div>
       <ul className={styles.navLinks}>
         <li>
-          <Link to="/find-service-centers">Find Service Centers</Link>
+          <Link to="/">Find Service Centers</Link>
         </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
-        <li>
-          <Link to="/signup" className={styles.signupButton}>
-            Signup
-          </Link>
-        </li>
+        {isLoggedIn ? (
+          <li>
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              Logout
+            </button>
+          </li>
+        ) : (
+          <>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/signup" className={styles.signupButton}>
+                Signup
+              </Link>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );

@@ -25,13 +25,21 @@
   font-size: 1rem;
 }
 
+.logoutButton {
+  color: #ffffff;
+  background-color: #007bff;
+  padding: 0.5em;
+  border: none;
+  cursor: pointer;
+}
+
 .navLinks a:hover {
   color: #007bff;
 }
 
 .signupButton {
   color: #ffffff;
-  background-color: #007bff;
+
   padding: 0.5rem 1rem;
   border-radius: 5px;
   text-decoration: none;

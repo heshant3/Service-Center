@@ -94,6 +94,43 @@ const UPDATE_SERVICE_TYPE = gql`
   }
 `;
 
+const GET_BOOKINGS_BY_SERVICE_CENTER_ID = gql`
+  query GetBookingsByServiceCenterId($serviceCenterId: ID!) {
+    getBookingsByServiceCenterId(serviceCenterId: $serviceCenterId) {
+      id
+      customerId
+      serviceCenterId
+      serviceType
+      date
+      time
+      price
+      status
+      customer {
+        name
+        mobile
+      }
+    }
+  }
+`;
+
+const CANCEL_BOOKING_BY_ID = gql`
+  mutation CancelBookingById($bookingId: ID!) {
+    cancelBookingById(bookingId: $bookingId)
+  }
+`;
+
+const CONFIRM_BOOKING_BY_ID = gql`
+  mutation ConfirmBooking($bookingId: ID!) {
+    confirmBookingById(bookingId: $bookingId)
+  }
+`;
+
+const COMPLETE_BOOKING_BY_ID = gql`
+  mutation CompleteBooking($bookingId: ID!) {
+    completeBookingById(bookingId: $bookingId)
+  }
+`;
+
 const ServiceCenterDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -107,37 +144,13 @@ const ServiceCenterDashboard = () => {
     password: "",
     about: "",
     businesshours: "",
-    imageurl: "", // Add imageurl field
+    imageurl: "",
   });
   const [tempProfile, setTempProfile] = useState({ ...profile });
 
   const [isEditingServices, setIsEditingServices] = useState(false);
   const [services, setServices] = useState([]);
   const [tempServices, setTempServices] = useState([]);
-
-  const appointments = [
-    {
-      id: 1,
-      customer: "John Doe",
-      service: "Oil Change",
-      date: "2025-04-15",
-      status: "Confirmed",
-    },
-    {
-      id: 2,
-      customer: "Jane Smith",
-      service: "Tire Rotation",
-      date: "2025-04-16",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      customer: "Mike Johnson",
-      service: "Brake Check",
-      date: "2025-04-17",
-      status: "Completed",
-    },
-  ];
 
   const serviceCenterId =
     parseInt(localStorage.getItem("serviceCenterId"), 10) || 1;
@@ -157,8 +170,19 @@ const ServiceCenterDashboard = () => {
     variables: { service_center_id: serviceCenterId },
   });
 
+  const {
+    data: bookingsData,
+    loading: bookingsLoading,
+    error: bookingsError,
+  } = useQuery(GET_BOOKINGS_BY_SERVICE_CENTER_ID, {
+    variables: { serviceCenterId },
+  });
+
   const [updateServiceCenterData] = useMutation(UPDATE_SERVICE_CENTER_DATA);
   const [updateServiceType] = useMutation(UPDATE_SERVICE_TYPE);
+  const [cancelBookingById] = useMutation(CANCEL_BOOKING_BY_ID);
+  const [confirmBookingById] = useMutation(CONFIRM_BOOKING_BY_ID);
+  const [completeBookingById] = useMutation(COMPLETE_BOOKING_BY_ID);
 
   useEffect(() => {
     refetch(); // Refetch data when the page loads
@@ -234,6 +258,8 @@ const ServiceCenterDashboard = () => {
     }
   }, [serviceTypesData]);
 
+  const appointments = bookingsData?.getBookingsByServiceCenterId || [];
+
   if (loading) return <p>Loading...</p>;
   if (error) {
     console.error("Error fetching service center data:", error);
@@ -246,7 +272,24 @@ const ServiceCenterDashboard = () => {
     return <p>Error loading service types. Please try again later.</p>;
   }
 
-  const handleRowClick = (appointment) => {
+  if (bookingsLoading) return <p>Loading bookings...</p>;
+  if (bookingsError) {
+    console.error("Error fetching bookings:", bookingsError);
+    return <p>Error loading bookings. Please try again later.</p>;
+  }
+
+  const handleRowClick = async (appointment) => {
+    console.log("Clicked Appointment ID:", appointment.id); // Log the clicked ID
+    try {
+      await confirmBookingById({
+        variables: { bookingId: appointment.id },
+      });
+
+      refetch(); // Refetch bookings after confirmation
+    } catch (error) {
+      console.error("Error confirming booking:", error);
+      toast.error("Failed to confirm booking. Please try again.");
+    }
     setSelectedAppointment(appointment);
   };
 
@@ -254,11 +297,33 @@ const ServiceCenterDashboard = () => {
     setSelectedAppointment(null);
   };
 
-  const handleAction = (action) => {
-    console.log(
-      `${action} action for appointment ID: ${selectedAppointment.id}`
-    );
-    setSelectedAppointment(null);
+  const handleAction = async (action) => {
+    try {
+      if (action === "Confirm" && selectedAppointment) {
+        await confirmBookingById({
+          variables: { bookingId: selectedAppointment.id },
+        });
+        toast.success("Booking confirmed successfully!");
+        refetch(); // Refetch bookings after confirmation
+      } else if (action === "Cancel" && selectedAppointment) {
+        await cancelBookingById({
+          variables: { bookingId: selectedAppointment.id },
+        });
+        toast.success("Booking cancelled successfully!");
+        refetch(); // Refetch bookings after cancellation
+      } else if (action === "Completed" && selectedAppointment) {
+        await completeBookingById({
+          variables: { bookingId: selectedAppointment.id },
+        });
+        toast.success("Booking marked as completed successfully!");
+        refetch(); // Refetch bookings after marking as completed
+      }
+      refetch(); // Ensure refetch is called after any action
+      setSelectedAppointment(null);
+    } catch (error) {
+      console.error("Error performing action:", error);
+      toast.error("Failed to perform action. Please try again.");
+    }
   };
 
   const handleProfileChange = (e) => {
@@ -350,13 +415,13 @@ const ServiceCenterDashboard = () => {
       case "appointments":
         return (
           <div className={styles.tableContainer}>
-            {" "}
             <h2>Recent Appointments</h2>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Customer</th>
+                  <th>Mobile</th>
                   <th>Service</th>
                   <th>Date</th>
                   <th>Status</th>
@@ -370,8 +435,9 @@ const ServiceCenterDashboard = () => {
                     className={styles.tableRow}
                   >
                     <td>{appointment.id}</td>
-                    <td>{appointment.customer}</td>
-                    <td>{appointment.service}</td>
+                    <td>{appointment.customer?.name || "N/A"}</td>
+                    <td>{appointment.customer?.mobile || "N/A"}</td>
+                    <td>{appointment.serviceType}</td>
                     <td>{appointment.date}</td>
                     <td
                       className={
@@ -597,10 +663,15 @@ const ServiceCenterDashboard = () => {
               <strong>ID:</strong> {selectedAppointment.id}
             </p>
             <p>
-              <strong>Customer:</strong> {selectedAppointment.customer}
+              <strong>Customer:</strong>{" "}
+              {selectedAppointment.customer?.name || "N/A"}
             </p>
             <p>
-              <strong>Service:</strong> {selectedAppointment.service}
+              <strong>Mobile:</strong>{" "}
+              {selectedAppointment.customer?.mobile || "N/A"}
+            </p>
+            <p>
+              <strong>Service:</strong> {selectedAppointment.serviceType}
             </p>
             <p>
               <strong>Date:</strong> {selectedAppointment.date}

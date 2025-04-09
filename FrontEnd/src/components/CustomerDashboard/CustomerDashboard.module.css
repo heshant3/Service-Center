@@ -45,7 +45,7 @@ h1 {
 .tabs button {
   flex: 1;
   padding: 0.75rem;
-  background-color: #f8f9fa;
+  background-color: ##5badff;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
@@ -53,7 +53,8 @@ h1 {
 }
 
 .tabs button:hover {
-  background-color: #e0e0e0;
+  background-color: #2792fd;
+  color: #fff;
 }
 
 .activeTab {
@@ -175,6 +176,7 @@ h1 {
 }
 
 .appointment .cancel {
+  background-color: #ffcad0;
   color: #dc3545;
   text-decoration: none;
   font-size: 0.9rem;
@@ -186,6 +188,8 @@ h1 {
 }
 
 .statusConfirmed,
+.statusCancelled,
+.statusCompleted,
 .statusPending {
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -195,13 +199,23 @@ h1 {
 }
 
 .statusConfirmed {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: #d4d4ed;
+  color: blue;
 }
 
 .statusPending {
   background-color: #fff3cd;
   color: #856404;
+}
+
+.statusCompleted {
+  background-color: #d4edda;
+  color: green;
+}
+
+.statusCancelled {
+  background-color: #edd4d4;
+  color: red;
 }
 
 .footer {
@@ -276,14 +290,6 @@ h1 {
 .notes,
 .status {
   margin-bottom: 1rem;
-}
-
-.statusConfirmed {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
 }
 
 .closeModalButton {

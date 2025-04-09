@@ -1,6 +1,11 @@
 const { gql } = require("apollo-server");
 
 const bookingTypeDefs = gql`
+  type Customer {
+    name: String!
+    email: String!
+  }
+
   type ServiceCenter {
     name: String!
     address: String!
@@ -17,6 +22,8 @@ const bookingTypeDefs = gql`
     price: Float!
     status: String!
     serviceCenter: ServiceCenter
+    customer: Customer
+    computedPart: String
   }
 
   type Query {
@@ -36,6 +43,9 @@ const bookingTypeDefs = gql`
       price: Float!
       status: String!
     ): Booking
+    cancelBookingById(bookingId: ID!): String
+    confirmBookingById(bookingId: ID!): String
+    completeBookingById(bookingId: ID!): String
   }
 `;
 

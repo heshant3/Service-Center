@@ -19,6 +19,7 @@ module.exports = {
         time: booking.time,
         price: booking.price,
         status: booking.status,
+        computedPart: `${booking.service_type} - ${booking.status}`, // Example computed field
       }));
     },
     getBookingById: async (_, { id }, { db }) => {
@@ -34,14 +35,26 @@ module.exports = {
         time: booking.time,
         price: booking.price,
         status: booking.status,
+        computedPart: `${booking.service_type} - ${booking.status}`, // Example computed field
       };
     },
     getBookingsByServiceCenterId: async (_, { serviceCenterId }, { db }) => {
+      const serviceCenterIdInt = parseInt(serviceCenterId, 10);
+      if (isNaN(serviceCenterIdInt)) {
+        throw new Error("Invalid serviceCenterId provided");
+      }
+
       const bookings = await db
-        .query("SELECT * FROM bookings WHERE service_center_id = $1", [
-          serviceCenterId,
-        ])
+        .query(
+          `SELECT b.*, c.email AS customerEmail, cd.name AS customerName, cd.mobile AS customerMobile
+           FROM bookings b
+           LEFT JOIN customers c ON b.customer_id = c.id
+           LEFT JOIN customersdata cd ON b.customer_id = cd.customer_id
+           WHERE b.service_center_id = $1`,
+          [serviceCenterIdInt]
+        )
         .then((res) => res.rows);
+
       return bookings.map((booking) => ({
         id: booking.id,
         customerId: booking.customer_id,
@@ -51,6 +64,11 @@ module.exports = {
         time: booking.time,
         price: booking.price,
         status: booking.status,
+        customer: {
+          name: booking.customername,
+          mobile: booking.customermobile,
+        },
+        computedPart: `${booking.service_type} - ${booking.status}`, // Example computed field
       }));
     },
     getBookingsByCustomerId: async (_, { customerId }, { db }) => {
@@ -83,6 +101,7 @@ module.exports = {
           address: booking.servicecenteraddress,
           mobile: booking.servicecentermobile,
         },
+        computedPart: `${booking.service_type} - ${booking.status}`, // Example computed field
       }));
 
       const filteredBookings = mappedBookings.filter(
@@ -135,6 +154,57 @@ module.exports = {
         price: booking.price,
         status: booking.status,
       };
+    },
+    cancelBookingById: async (_, { bookingId }, { db }) => {
+      const bookingIdInt = parseInt(bookingId, 10);
+      if (isNaN(bookingIdInt)) {
+        throw new Error("Invalid bookingId provided");
+      }
+
+      const result = await db.query(
+        "UPDATE bookings SET status = $1 WHERE id = $2 RETURNING id",
+        ["Cancelled", bookingIdInt]
+      );
+
+      if (result.rowCount === 0) {
+        return "No booking found for the given bookingId.";
+      }
+
+      return `Successfully cancelled booking with ID ${bookingId}.`;
+    },
+    confirmBookingById: async (_, { bookingId }, { db }) => {
+      const bookingIdInt = parseInt(bookingId, 10);
+      if (isNaN(bookingIdInt)) {
+        throw new Error("Invalid bookingId provided");
+      }
+
+      const result = await db.query(
+        "UPDATE bookings SET status = $1 WHERE id = $2 RETURNING id",
+        ["Confirmed", bookingIdInt]
+      );
+
+      if (result.rowCount === 0) {
+        return "No booking found for the given bookingId.";
+      }
+
+      return `Successfully confirmed booking with ID ${bookingId}.`;
+    },
+    completeBookingById: async (_, { bookingId }, { db }) => {
+      const bookingIdInt = parseInt(bookingId, 10);
+      if (isNaN(bookingIdInt)) {
+        throw new Error("Invalid bookingId provided");
+      }
+
+      const result = await db.query(
+        "UPDATE bookings SET status = $1 WHERE id = $2 RETURNING id",
+        ["Completed", bookingIdInt]
+      );
+
+      if (result.rowCount === 0) {
+        return "No booking found for the given bookingId.";
+      }
+
+      return `Successfully completed booking with ID ${bookingId}.`;
     },
   },
 };
