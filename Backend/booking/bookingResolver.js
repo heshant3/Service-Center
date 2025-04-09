@@ -1,5 +1,8 @@
-const formatDate = (timestamp) =>
-  new Date(parseInt(timestamp)).toISOString().split("T")[0];
+const formatDate = (timestamp) => {
+  if (!timestamp) return null; // Handle null or undefined timestamps
+  const date = new Date(timestamp); // Directly create a Date object from the timestamp
+  return isNaN(date.getTime()) ? null : date.toISOString().split("T")[0]; // Handle invalid timestamps
+};
 
 module.exports = {
   Query: {
@@ -49,6 +52,42 @@ module.exports = {
         price: booking.price,
         status: booking.status,
       }));
+    },
+    getBookingsByCustomerId: async (_, { customerId }, { db }) => {
+      console.log(`Fetching bookings for customerId: ${customerId}`); // Debug log
+
+      const customerIdInt = parseInt(customerId, 10);
+      if (isNaN(customerIdInt)) {
+        console.error("Invalid customerId provided:", customerId);
+        return [];
+      }
+
+      const bookings = await db
+        .query("SELECT * FROM bookings WHERE customer_id = $1", [customerIdInt])
+        .then((res) => res.rows);
+
+      console.log("Raw bookings from database:", bookings); // Debug log
+
+      const mappedBookings = bookings.map((booking) => ({
+        id: booking.id,
+        customerId: booking.customer_id,
+        serviceCenterId: booking.service_center_id,
+        serviceType: booking.service_type,
+        date: formatDate(booking.date), // Updated to handle ISO date strings
+        time: booking.time,
+        price: booking.price,
+        status: booking.status,
+      }));
+
+      console.log("Mapped bookings before filtering:", mappedBookings); // Debug log
+
+      const filteredBookings = mappedBookings.filter(
+        (booking) => booking.date !== null
+      );
+
+      console.log("Filtered bookings:", filteredBookings); // Debug log
+
+      return filteredBookings;
     },
   },
   Mutation: {

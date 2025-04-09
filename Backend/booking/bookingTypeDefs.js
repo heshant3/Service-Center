@@ -16,6 +16,7 @@ const bookingTypeDefs = gql`
     getBookings: [Booking]
     getBookingById(id: ID!): Booking
     getBookingsByServiceCenterId(serviceCenterId: ID!): [Booking]
+    getBookingsByCustomerId(customerId: ID!): [Booking]
   }
 
   type Mutation {
