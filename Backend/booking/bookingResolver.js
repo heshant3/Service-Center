@@ -54,38 +54,40 @@ module.exports = {
       }));
     },
     getBookingsByCustomerId: async (_, { customerId }, { db }) => {
-      console.log(`Fetching bookings for customerId: ${customerId}`); // Debug log
-
       const customerIdInt = parseInt(customerId, 10);
       if (isNaN(customerIdInt)) {
-        console.error("Invalid customerId provided:", customerId);
         return [];
       }
 
       const bookings = await db
-        .query("SELECT * FROM bookings WHERE customer_id = $1", [customerIdInt])
+        .query(
+          `SELECT b.*, scd.name AS serviceCenterName, scd.address AS serviceCenterAddress, scd.mobile AS serviceCenterMobile
+           FROM bookings b
+           LEFT JOIN serviceCentersData scd ON b.service_center_id = scd.id
+           WHERE b.customer_id = $1`,
+          [customerIdInt]
+        )
         .then((res) => res.rows);
-
-      console.log("Raw bookings from database:", bookings); // Debug log
 
       const mappedBookings = bookings.map((booking) => ({
         id: booking.id,
         customerId: booking.customer_id,
         serviceCenterId: booking.service_center_id,
         serviceType: booking.service_type,
-        date: formatDate(booking.date), // Updated to handle ISO date strings
+        date: formatDate(booking.date),
         time: booking.time,
         price: booking.price,
         status: booking.status,
+        serviceCenter: {
+          name: booking.servicecentername,
+          address: booking.servicecenteraddress,
+          mobile: booking.servicecentermobile,
+        },
       }));
-
-      console.log("Mapped bookings before filtering:", mappedBookings); // Debug log
 
       const filteredBookings = mappedBookings.filter(
         (booking) => booking.date !== null
       );
-
-      console.log("Filtered bookings:", filteredBookings); // Debug log
 
       return filteredBookings;
     },

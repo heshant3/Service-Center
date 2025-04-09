@@ -45,6 +45,25 @@ const UPDATE_CUSTOMER_DATA = gql`
   }
 `;
 
+// GraphQL query to fetch bookings by customer ID
+const GET_BOOKINGS_BY_CUSTOMER_ID = gql`
+  query GetBookingsByCustomerId($customerId: ID!) {
+    getBookingsByCustomerId(customerId: $customerId) {
+      id
+      serviceType
+      date
+      time
+      price
+      status
+      serviceCenter {
+        name
+        address
+        mobile
+      }
+    }
+  }
+`;
+
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
   const [showModal, setShowModal] = useState(false);
@@ -56,6 +75,7 @@ const CustomerDashboard = () => {
     email: "",
     password: "********",
   });
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   // Fetch customer ID from local storage
   const customerId = localStorage.getItem("customerId");
@@ -64,6 +84,16 @@ const CustomerDashboard = () => {
   const { data, loading, error } = useQuery(GET_CUSTOMER_DATA_BY_ID, {
     variables: { id: customerId },
     skip: !customerId, // Skip query if customerId is not available
+  });
+
+  // Use Apollo Client's useQuery hook to fetch bookings
+  const {
+    data: bookingsData,
+    loading: bookingsLoading,
+    error: bookingsError,
+  } = useQuery(GET_BOOKINGS_BY_CUSTOMER_ID, {
+    variables: { customerId },
+    skip: !customerId,
   });
 
   // Use Apollo Client's useMutation hook to update data
@@ -86,12 +116,14 @@ const CustomerDashboard = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading customer data.</p>;
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (booking) => {
+    setSelectedBooking(booking);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
+    setSelectedBooking(null);
   };
 
   const handleEditToggle = async () => {
@@ -144,33 +176,39 @@ const CustomerDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "appointments":
+        if (bookingsLoading) return <p>Loading appointments...</p>;
+        if (bookingsError) return <p>Error loading appointments.</p>;
+
         return (
           <div className={styles.tabContent}>
-            <h3>Upcoming & Pending Appointments</h3>
-            <div className={styles.appointment}>
-              <div>
-                <h4>Express Auto Service</h4>
-                <p>Oil Change</p>
-                <p>Date: 2025-04-15 at 10:00 AM</p>
-                <button onClick={handleViewDetails}>View Details</button> |{" "}
-                <a href="#" className={styles.cancel}>
-                  Cancel
-                </a>
+            <h3>Appointments</h3>
+            {bookingsData?.getBookingsByCustomerId.map((booking) => (
+              <div key={booking.id} className={styles.appointment}>
+                <div>
+                  <h4>{booking.serviceCenter.name}</h4>
+                  <p>{booking.serviceType}</p>
+                  <p>
+                    Date: {booking.date} at {booking.time}
+                  </p>
+                  <button onClick={() => handleViewDetails(booking)}>
+                    View Details
+                  </button>{" "}
+                  |{" "}
+                  <a href="#" className={styles.cancel}>
+                    Cancel
+                  </a>
+                </div>
+                <span
+                  className={
+                    booking.status === "Confirmed"
+                      ? styles.statusConfirmed
+                      : styles.statusPending
+                  }
+                >
+                  {booking.status}
+                </span>
               </div>
-              <span className={styles.statusConfirmed}>Confirmed</span>
-            </div>
-            <div className={styles.appointment}>
-              <div>
-                <h4>City Mechanics</h4>
-                <p>Tire Rotation</p>
-                <p>Date: 2025-04-22 at 2:30 PM</p>
-                <a href="#">View Details</a> |{" "}
-                <a href="#" className={styles.cancel}>
-                  Cancel
-                </a>
-              </div>
-              <span className={styles.statusPending}>Pending</span>
-            </div>
+            ))}
           </div>
         );
       case "history":
@@ -297,7 +335,7 @@ const CustomerDashboard = () => {
         </button>
       </div>
       {renderContent()}
-      {showModal && (
+      {showModal && selectedBooking && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <button className={styles.closeButton} onClick={handleCloseModal}>
@@ -306,34 +344,39 @@ const CustomerDashboard = () => {
             <h2>Appointment Details</h2>
             <div className={styles.modalContent}>
               <div className={styles.serviceInfo}>
-                <h3>Oil Change</h3>
-                <p>Est. 45 minutes • $49.99</p>
+                <h3>{selectedBooking.serviceType}</h3>
+                <p>
+                  • Price Rs.
+                  {selectedBooking.price}
+                </p>
               </div>
               <div className={styles.serviceCenterInfo}>
                 <p>
-                  <strong>Express Auto Service</strong>
+                  <strong>{selectedBooking.serviceCenter.name}</strong>
                 </p>
-                <p>123 Main Street, Cityville</p>
-                <p>Phone: (555) 123-4567</p>
+                <p>{selectedBooking.serviceCenter.address}</p>
+                <p>Phone: {selectedBooking.serviceCenter.mobile}</p>
               </div>
               <div className={styles.dateTime}>
                 <p>
-                  <strong>Date:</strong> 2025-04-15
+                  <strong>Date:</strong> {selectedBooking.date}
                 </p>
                 <p>
-                  <strong>Time:</strong> 10:00 AM
+                  <strong>Time:</strong> {selectedBooking.time}
                 </p>
-              </div>
-              <div className={styles.notes}>
-                <p>
-                  <strong>Notes:</strong>
-                </p>
-                <p>Please bring your vehicle's service book</p>
               </div>
               <div className={styles.status}>
                 <p>
                   <strong>Status:</strong>{" "}
-                  <span className={styles.statusConfirmed}>Confirmed</span>
+                  <span
+                    className={
+                      selectedBooking.status === "Confirmed"
+                        ? styles.statusConfirmed
+                        : styles.statusPending
+                    }
+                  >
+                    {selectedBooking.status}
+                  </span>
                 </p>
               </div>
             </div>
