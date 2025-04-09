@@ -32,6 +32,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { loading, error, data } = useQuery(GET_ALL_SERVICE_CENTER_DETAILS);
   const [serviceCenters, setServiceCenters] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (data && data.getAllServiceCenterDetails) {
@@ -43,6 +44,10 @@ const HomePage = () => {
     navigate(`/service-center-details/${service_center_id}`);
   };
 
+  const filteredServiceCenters = serviceCenters.filter((center) =>
+    center.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   console.log("Service Centers:", serviceCenters);
 
   if (loading) return <p>Loading...</p>;
@@ -51,8 +56,15 @@ const HomePage = () => {
   return (
     <div className={styles.homeContainer}>
       <h1>Find Service Centers</h1>
+      <input
+        type="text"
+        placeholder="Search by address"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={styles.searchBar}
+      />
       <div className={styles.serviceCards}>
-        {serviceCenters.map((center, index) => (
+        {filteredServiceCenters.map((center, index) => (
           <div
             key={index}
             className={styles.card}

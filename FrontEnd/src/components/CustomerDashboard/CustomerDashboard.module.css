@@ -45,7 +45,7 @@ h1 {
 .tabs button {
   flex: 1;
   padding: 0.75rem;
-  background-color: ##5badff;
+  background-color: #5badff;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
@@ -54,7 +54,7 @@ h1 {
 
 .tabs button:hover {
   background-color: #2792fd;
-  color: #fff;
+  color: #d4edda;
 }
 
 .activeTab {
@@ -156,6 +156,13 @@ h1 {
   color: #007bff;
 }
 
+.appointmentsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  justify-content: center;
+}
+
 .appointment p {
   margin: 0.25rem 0;
   color: #555;
@@ -185,6 +192,8 @@ h1 {
 
 .appointment .cancel:hover {
   text-decoration: underline;
+  background-color: #ff8b98;
+  color: #dc3545;
 }
 
 .statusConfirmed,

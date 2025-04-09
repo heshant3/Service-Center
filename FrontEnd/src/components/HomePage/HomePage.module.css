@@ -10,6 +10,11 @@
   display: flex;
   justify-content: center;
   gap: 0.5rem;
+  justify-self: anchor-center;
+  width: 50em;
+  height: 3em;
+  border-radius: 0.5em;
+  border: #0056b3 solid 1px;
 }
 
 .searchBar input {

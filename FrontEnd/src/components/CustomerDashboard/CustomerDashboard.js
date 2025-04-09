@@ -218,34 +218,36 @@ const CustomerDashboard = () => {
         return (
           <div className={styles.tabContent}>
             <h3>Appointments</h3>
-            {bookingsData?.getBookingsByCustomerId.map((booking) => (
-              <div key={booking.id} className={styles.appointment}>
-                <div>
-                  <h4>{booking.serviceCenter.name}</h4>
-                  <p>{booking.serviceType}</p>
-                  <p>
-                    Date: {booking.date} at {booking.time}
-                  </p>
-                  <button onClick={() => handleViewDetails(booking)}>
-                    View Details
-                  </button>
-                  {["Confirmed", "Pending"].includes(booking.status) && (
-                    <>
-                      {" | "}
-                      <button
-                        className={styles.cancel}
-                        onClick={() => handleCancelBooking(booking.id)}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
+            <div className={styles.appointmentsList}>
+              {bookingsData?.getBookingsByCustomerId.map((booking) => (
+                <div key={booking.id} className={styles.appointment}>
+                  <div>
+                    <h4>{booking.serviceCenter.name}</h4>
+                    <p>{booking.serviceType}</p>
+                    <p>
+                      Date: {booking.date} at {booking.time}
+                    </p>
+                    <button onClick={() => handleViewDetails(booking)}>
+                      View Details
+                    </button>
+                    {["Confirmed", "pending"].includes(booking.status) && (
+                      <>
+                        {" | "}
+                        <button
+                          className={styles.cancel}
+                          onClick={() => handleCancelBooking(booking.id)}
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <span className={getStatusClass(booking.status)}>
+                    {booking.status}
+                  </span>
                 </div>
-                <span className={getStatusClass(booking.status)}>
-                  {booking.status}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         );
 
@@ -337,8 +339,6 @@ const CustomerDashboard = () => {
       <Toaster />
       <h1>Customer Dashboard</h1>
       <div className={styles.stats}>
-        <div className={styles.statCard}>Welcome</div>
-
         <div className={styles.statCard}>
           <p>Total Appointments</p>
           <h2>{bookingsData?.getBookingsByCustomerId?.length || 0}</h2>
