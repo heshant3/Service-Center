@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { toast, Toaster } from "sonner"; // Added sonner imports
 import styles from "./ServiceCenterDetails.module.css";
 
 const GET_ALL_SERVICE_CENTER_DETAILS_BY_ID = gql`
@@ -111,15 +112,14 @@ const ServiceCenterDetails = () => {
       price: price,
       status: "pending",
     };
-    console.log(bookingData);
+
     try {
       const { data } = await addBooking({ variables: bookingData });
-      console.log("Booking Data:", data.addBooking); // Log the booking data to the console
-      alert("Booking Confirmed!");
+
+      toast.success("Booking Confirmed!"); // Replaced alert with toast
       handleCloseModal();
     } catch (error) {
-      console.error("Error adding booking:", error);
-      alert("Failed to confirm booking. Please try again.");
+      toast.error("Failed to confirm booking. Please try again."); // Replaced alert with toast
     }
   };
 
@@ -136,6 +136,7 @@ const ServiceCenterDetails = () => {
 
   return (
     <div className={styles.detailsContainer}>
+      <Toaster /> {/* Added Toaster component */}
       <div className={styles.detailsContent}>
         <div className={styles.imageSection}>
           {center.imageurl ? (
@@ -212,7 +213,6 @@ const ServiceCenterDetails = () => {
           </tbody>
         </table>
       </div>
-
       {isModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
