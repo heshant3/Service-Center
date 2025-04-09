@@ -12,6 +12,7 @@ import CustomerDashboard from "./components/CustomerDashboard/CustomerDashboard"
 import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import ServiceCenterDashboard from "./components/ServiceCenterDashboard/ServiceCenterDashboard";
 import ApolloClientProvider from "./components/ApolloClientProvider/ApolloClientProvider";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   return (
@@ -31,11 +32,29 @@ function App() {
               path="/service-center-details/:id"
               element={<ServiceCenterDetails />}
             />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route
+              path="/customer-dashboard"
+              element={
+                <ProtectedRoute role="customer">
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/service-center-dashboard"
-              element={<ServiceCenterDashboard />}
+              element={
+                <ProtectedRoute role="serviceCenter">
+                  <ServiceCenterDashboard />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>

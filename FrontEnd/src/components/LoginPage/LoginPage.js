@@ -45,55 +45,44 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (accountType === "customer") {
-      try {
-        const { data } = await loginCustomer({
+    try {
+      let data;
+      if (accountType === "customer") {
+        data = await loginCustomer({
           variables: { email, password },
         });
-        if (data.loginCustomer) {
-          localStorage.setItem("customerId", data.loginCustomer.id); // Save customer ID
-          navigate("/customer-dashboard");
-        } else {
-          toast.error("Invalid email or password. Please try again."); // Show error toast
-        }
-      } catch (error) {
+      } else if (accountType === "admin") {
+        data = await loginAdmin({
+          variables: { email, password },
+        });
+      } else if (accountType === "serviceCenter") {
+        data = await loginServiceCenter({
+          variables: { email, password },
+        });
+      }
+
+      if (data && data.data) {
+        const roleToDashboard = {
+          customer: "/customer-dashboard",
+          admin: "/admin-dashboard",
+          serviceCenter: "/service-center-dashboard",
+        };
+        const userRole = accountType;
+        localStorage.setItem(
+          `${userRole}Id`,
+          data.data[`login${capitalize(userRole)}`].id
+        ); // Save user ID
+        navigate(roleToDashboard[userRole]); // Redirect to dashboard
+      } else {
         toast.error("Invalid email or password. Please try again."); // Show error toast
-        console.error("Login failed", error);
       }
-    } else if (accountType === "admin") {
-      try {
-        const { data } = await loginAdmin({
-          variables: { email, password },
-        });
-        if (data.loginAdmin) {
-          localStorage.setItem("adminId", data.loginAdmin.id); // Save admin ID
-          navigate("/admin-dashboard");
-        } else {
-          toast.error("Invalid email or password. Please try again.");
-        }
-      } catch (error) {
-        toast.error("Invalid email or password. Please try again.");
-        console.error("Login failed", error);
-      }
-    } else if (accountType === "serviceCenter") {
-      try {
-        const { data } = await loginServiceCenter({
-          variables: { email, password },
-        });
-        if (data.loginServiceCenter) {
-          localStorage.setItem("serviceCenterId", data.loginServiceCenter.id); // Save service center ID
-          navigate("/service-center-dashboard");
-        } else {
-          toast.error("Invalid email or password. Please try again.");
-        }
-      } catch (error) {
-        toast.error("Invalid email or password. Please try again.");
-        console.error("Login failed", error);
-      }
-    } else {
-      toast.error("Unsupported account type.");
+    } catch (error) {
+      toast.error("Invalid email or password. Please try again."); // Show error toast
+      console.error("Login failed", error);
     }
   };
+
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   return (
     <div className={styles.loginContainer}>
