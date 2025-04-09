@@ -6,19 +6,23 @@ import styles from "./HomePage.module.css";
 const GET_ALL_SERVICE_CENTER_DETAILS = gql`
   query GetAllServiceCenterDetails {
     getAllServiceCenterDetails {
-      id
-      name
-      address
-      mobile
-      email
-      about
-      businesshours
-      imageurl
-      serviceTypes {
-        basic_price
-        half_service_price
-        full_service_price
-        comprehensive_price
+      totalCount
+      serviceCenterDetails {
+        id
+        name
+        address
+        mobile
+        email
+        about
+        businesshours
+        imageurl
+        serviceTypes {
+          id
+          basic_price
+          half_service_price
+          full_service_price
+          comprehensive_price
+        }
       }
     }
   }
@@ -31,7 +35,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (data && data.getAllServiceCenterDetails) {
-      setServiceCenters(data.getAllServiceCenterDetails);
+      setServiceCenters(data.getAllServiceCenterDetails.serviceCenterDetails);
     }
   }, [data]);
 
