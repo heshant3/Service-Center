@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client"; // Import Apollo Client hooks
 import styles from "./CustomerDashboard.module.css";
 import { toast, Toaster } from "sonner";
+import AIChat from "../AiChat/Chat";
 
 // GraphQL query to fetch customer data by ID
 const GET_CUSTOMER_DATA_BY_ID = gql`
@@ -332,6 +333,7 @@ const CustomerDashboard = () => {
 
   return (
     <div className={styles.dashboardContainer}>
+      <AIChat />
       <Toaster />
       <h1>Customer Dashboard</h1>
       <div className={styles.stats}>

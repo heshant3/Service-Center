@@ -52,6 +52,8 @@ module.exports = {
            LEFT JOIN service_centers sc ON scd.service_center_id = sc.id`
         );
 
+        const totalCount = serviceCenters.rowCount;
+
         const serviceCenterDetails = await Promise.all(
           serviceCenters.rows.map(async (center) => {
             if (!center.service_center_id) {
@@ -59,7 +61,7 @@ module.exports = {
             }
 
             const serviceTypes = await db.query(
-              `SELECT basic_price, half_service_price, full_service_price, comprehensive_price 
+              `SELECT id, basic_price, half_service_price, full_service_price, comprehensive_price 
                FROM service_types 
                WHERE service_center_id = $1`,
               [center.service_center_id]
@@ -75,7 +77,7 @@ module.exports = {
           })
         );
 
-        return serviceCenterDetails;
+        return { totalCount, serviceCenterDetails };
       } catch (error) {
         throw new Error("Failed to fetch service center details");
       }

@@ -260,6 +260,14 @@ const ServiceCenterDashboard = () => {
 
   const appointments = bookingsData?.getBookingsByServiceCenterId || [];
 
+  const totalBookings = appointments.length;
+  const completedBookings = appointments.filter(
+    (appointment) => appointment.status === "Completed"
+  ).length;
+  const pendingBookings = appointments.filter(
+    (appointment) => appointment.status === "Pending"
+  ).length;
+
   if (loading) return <p>Loading...</p>;
   if (error) {
     console.error("Error fetching service center data:", error);
@@ -445,7 +453,9 @@ const ServiceCenterDashboard = () => {
                           ? styles.statusConfirmed
                           : appointment.status === "Pending"
                           ? styles.statusPending
-                          : styles.statusCompleted
+                          : appointment.status === "Completed"
+                          ? styles.statusCompleted
+                          : styles.statusCancelled // Add cancelled status styling
                       }
                     >
                       {appointment.status}
@@ -637,6 +647,20 @@ const ServiceCenterDashboard = () => {
     <div className={styles.dashboardContainer}>
       <Toaster /> {/* Add Toaster component */}
       <h1>Service Center Dashboard</h1>
+      <div className={styles.stats}>
+        <div className={styles.statCard}>
+          <p>Total Bookings</p>
+          <h2>{totalBookings}</h2>
+        </div>
+        <div className={styles.statCard}>
+          <p>Completed Bookings</p>
+          <h2>{completedBookings}</h2>
+        </div>
+        <div className={styles.statCard}>
+          <p>Pending Bookings</p>
+          <h2>{pendingBookings}</h2>
+        </div>
+      </div>
       <div className={styles.tabs}>
         <button
           className={activeTab === "appointments" ? styles.activeTab : ""}
@@ -677,27 +701,44 @@ const ServiceCenterDashboard = () => {
               <strong>Date:</strong> {selectedAppointment.date}
             </p>
             <p>
+              <strong>Price:</strong> Rs. {selectedAppointment.price || "N/A"}
+            </p>
+            <p>
               <strong>Status:</strong> {selectedAppointment.status}
             </p>
             <div className={styles.modalActions}>
-              <button
-                className={styles.confirmButton}
-                onClick={() => handleAction("Confirm")}
-              >
-                Confirm
-              </button>
-              <button
-                className={styles.cancelButton}
-                onClick={() => handleAction("Cancel")}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.completedButton}
-                onClick={() => handleAction("Completed")}
-              >
-                Completed
-              </button>
+              {selectedAppointment.status === "Pending" && (
+                <>
+                  <button
+                    className={styles.confirmButton}
+                    onClick={() => handleAction("Confirm")}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => handleAction("Cancel")}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+              {selectedAppointment.status === "Confirmed" && (
+                <>
+                  <button
+                    className={styles.completedButton}
+                    onClick={() => handleAction("Completed")}
+                  >
+                    Completed
+                  </button>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={() => handleAction("Cancel")}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

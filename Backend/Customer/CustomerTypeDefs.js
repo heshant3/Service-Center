@@ -11,9 +11,23 @@ const customerTypeDefs = gql`
     password: String
   }
 
+  type CustomerDetails {
+    id: ID!
+    name: String!
+    mobile: String!
+    address: String!
+    email: String
+  }
+
+  type CustomerDetailsResponse {
+    totalCount: Int!
+    customerDetails: [CustomerDetails]
+  }
+
   type Query {
     getCustomersData: [CustomerData]
     getCustomerDataById(id: ID!): CustomerData
+    getAllCustomerDetails: CustomerDetailsResponse
   }
 
   type Mutation {

@@ -35,6 +35,11 @@ const serviceCenterTypeDefs = gql`
     serviceTypes: [ServiceType]
   }
 
+  type ServiceCenterDetailsResponse {
+    totalCount: Int!
+    serviceCenterDetails: [ServiceCenterDetails]
+  }
+
   type Query {
     getServiceCentersData: [ServiceCenterData]
     getServiceCenterDataById(id: ID!): ServiceCenterData
@@ -42,7 +47,7 @@ const serviceCenterTypeDefs = gql`
       service_center_id: Int
     ): ServiceCenterData
     getServiceTypesByServiceCenterId(service_center_id: Int!): ServiceType
-    getAllServiceCenterDetails: [ServiceCenterDetails]
+    getAllServiceCenterDetails: ServiceCenterDetailsResponse
     getAllServiceCenterDetailsByServiceCenterId(id: ID!): ServiceCenterDetails
   }
 

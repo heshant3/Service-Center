@@ -26,11 +26,17 @@ const bookingTypeDefs = gql`
     computedPart: String
   }
 
+  type BookingList {
+    bookings: [Booking]
+    totalCount: Int
+  }
+
   type Query {
     getBookings: [Booking]
     getBookingById(id: ID!): Booking
     getBookingsByServiceCenterId(serviceCenterId: ID!): [Booking]
     getBookingsByCustomerId(customerId: ID!): [Booking]
+    showAllBookings: BookingList
   }
 
   type Mutation {

@@ -110,6 +110,26 @@ module.exports = {
 
       return filteredBookings;
     },
+    showAllBookings: async (_, __, { db }) => {
+      const bookings = await db
+        .query("SELECT * FROM bookings")
+        .then((res) => res.rows);
+
+      return {
+        bookings: bookings.map((booking) => ({
+          id: booking.id,
+          customerId: booking.customer_id,
+          serviceCenterId: booking.service_center_id,
+          serviceType: booking.service_type,
+          date: formatDate(booking.date),
+          time: booking.time,
+          price: booking.price,
+          status: booking.status,
+          computedPart: `${booking.service_type} - ${booking.status}`,
+        })),
+        totalCount: bookings.length, // Added total count
+      };
+    },
   },
   Mutation: {
     addBooking: async (

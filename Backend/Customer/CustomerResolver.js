@@ -18,6 +18,24 @@ module.exports = {
         )
         .then((res) => res.rows[0]);
     },
+    getAllCustomerDetails: async (_, __, { db }) => {
+      try {
+        const customers = await db.query(
+          `SELECT cd.id, cd.name, cd.mobile, cd.address, c.email 
+           FROM customersdata cd 
+           LEFT JOIN customers c ON cd.customer_id = c.id`
+        );
+
+        const totalCount = customers.rowCount;
+
+        return {
+          totalCount,
+          customerDetails: customers.rows,
+        };
+      } catch (error) {
+        throw new Error("Failed to fetch customer details");
+      }
+    },
   },
   Mutation: {
     addCustomerData: async (

@@ -72,9 +72,17 @@ h1 {
   background-color: #f1f1f1;
 }
 
+.statusCancelled {
+  color: #85000d;
+  background-color: #ffccd1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
 .statusConfirmed {
-  color: #155724;
-  background-color: #d4edda;
+  color: #004085;
+  background-color: #cce5ff;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   text-align: center;
@@ -89,8 +97,8 @@ h1 {
 }
 
 .statusCompleted {
-  color: #004085;
-  background-color: #cce5ff;
+  color: #155724;
+  background-color: #d4edda;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   text-align: center;
@@ -186,15 +194,16 @@ h1 {
 .tabs button {
   flex: 1;
   padding: 0.75rem;
-  background-color: #f8f9fa;
+  background-color: #2f97ff;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
+  color: #ffffff;
 }
 
 .tabs button:hover {
-  background-color: #e0e0e0;
+  background-color: #295377;
 }
 
 .activeTab {
