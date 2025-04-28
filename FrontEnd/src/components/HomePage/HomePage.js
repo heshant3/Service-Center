@@ -90,7 +90,7 @@ const HomePage = () => {
               </p>
               <p className={styles.cardAbout}>{center.about}</p>
               <div className={styles.cardRating}>
-                <span>⭐ {center.averageRating || "N/A"}</span>
+                <span>⭐ {center.averageRating || "0"}</span>
                 <span>({center.ratingCount || 0})</span>
               </div>
               <p className={styles.businessHours}>

@@ -139,7 +139,7 @@ const CustomerDashboard = () => {
   // Update profile state when data is fetched
   useEffect(() => {
     if (data && data.getCustomerDataById) {
-      const { id, name, address, mobile, email, customer_id } =
+      const { name, address, mobile, email, customer_id } =
         data.getCustomerDataById; // Include customer_id
       setProfile((prevProfile) => ({
         ...prevProfile,

@@ -66,7 +66,9 @@ module.exports = {
             [center.service_center_id]
           );
 
-          const averageRating = ratingResult.rows[0].average_rating || 0;
+          const averageRating = parseFloat(
+            (ratingResult.rows[0].average_rating || 0).toFixed(1)
+          );
           const ratingCount = ratingResult.rows[0].rating_count || 0;
 
           return {

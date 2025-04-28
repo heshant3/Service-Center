@@ -235,13 +235,6 @@ const ServiceCenterDetails = () => {
             <div className={styles.contactInfo}>{center.email}</div>
           </div>
         </div>
-        <div className={styles.infoCard}>
-          <div className={styles.infoCardTitle}>
-            <span className={styles.infoIcon}>🔧</span>
-            <span>Our Services</span>
-          </div>
-          <div className={styles.infoContent}>{center.about}</div>
-        </div>
       </div>
 
       <div className={styles.pricingSection}>
