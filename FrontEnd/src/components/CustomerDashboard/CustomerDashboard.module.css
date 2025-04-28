@@ -136,7 +136,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8); /* Darker overlay for dramatic effect */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -144,41 +144,100 @@
 }
 
 .popupCard {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
   max-width: 500px;
-  width: 100%;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  font-family: "Roboto", sans-serif;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .popupCard h3 {
-  margin: 0 0 1rem;
-  font-size: 1.5rem;
-  color: #1a1f2c;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #333333;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .popupCard p {
-  margin: 0.5rem 0;
-  color: #64748b;
+  margin: 0.8rem 0;
+  color: #555555;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.popupCard strong {
+  color: #222222;
 }
 
 .popupCard .statusCancelled {
-  color: #dc2626;
-  background-color: #fee2e2;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
+  color: #d32f2f;
+  background-color: #fdecea;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
   display: inline-block;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.popupCard .statusCompleted {
+  color: #28a745;
+  background-color: #e6f4ea;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
 }
 
 .popupCard .closeButton {
-  background-color: #3b82f6;
-  color: #fff;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: #ffffff;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
   cursor: pointer;
-  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 2rem;
+  display: inline-block;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.popupCard .closeButton:hover {
+  background: linear-gradient(90deg, #0056b3, #003f8a);
+  transform: scale(1.05);
+}
+
+.popupCard::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 3px;
 }
 
 .personalInfoContainer {
