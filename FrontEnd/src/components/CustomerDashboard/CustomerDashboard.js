@@ -3,6 +3,7 @@ import { useQuery, useMutation, gql } from "@apollo/client"; // Import Apollo Cl
 import styles from "./CustomerDashboard.module.css";
 import { toast, Toaster } from "sonner";
 import AIChat from "../AiChat/Chat";
+import AddReview from "../AddReview/AddReview"; // Import AddReview component
 
 // GraphQL query to fetch customer data by ID
 const GET_CUSTOMER_DATA_BY_ID = gql`
@@ -73,6 +74,21 @@ const CANCEL_BOOKING_BY_ID = gql`
   }
 `;
 
+// Updated GraphQL mutation to add feedback
+const ADD_FEEDBACK = gql`
+  mutation AddFeedback($bookingId: ID!, $feedback: String, $rating: Float) {
+    addFeedback(bookingId: $bookingId, feedback: $feedback, rating: $rating) {
+      id
+      bookingId
+      customerId
+      serviceCenterId
+      serviceType
+      feedback
+      rating
+    }
+  }
+`;
+
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
   const [isEditing, setIsEditing] = useState(false);
@@ -86,6 +102,8 @@ const CustomerDashboard = () => {
   });
   const [selectedBooking, setSelectedBooking] = useState(null); // State for selected booking
   const [showPopup, setShowPopup] = useState(false); // State for popup visibility
+  const [showReviewModal, setShowReviewModal] = useState(false); // State for AddReview modal
+  const [reviewedBookings, setReviewedBookings] = useState([]); // Track reviewed bookings
 
   // Fetch customer ID from local storage
   const customerId = localStorage.getItem("customerId");
@@ -114,6 +132,9 @@ const CustomerDashboard = () => {
 
   // Use Apollo Client's useMutation hook to cancel a booking
   const [cancelBooking] = useMutation(CANCEL_BOOKING_BY_ID);
+
+  // GraphQL mutation to add feedback
+  const [addFeedback] = useMutation(ADD_FEEDBACK); // Initialize the updated mutation
 
   // Update profile state when data is fetched
   useEffect(() => {
@@ -151,6 +172,29 @@ const CustomerDashboard = () => {
       refetchBookings(); // Refetch bookings after cancellation
     } catch (error) {
       toast.error("Failed to cancel booking.");
+    }
+  };
+
+  const handleAddReview = (booking) => {
+    setSelectedBooking(booking); // Set the entire booking object for review
+    setShowReviewModal(true); // Show the AddReview modal
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      const { feedback, rating } = reviewData;
+      await addFeedback({
+        variables: {
+          bookingId: selectedBooking.id, // Use the booking ID from the selected booking
+          feedback,
+          rating,
+        },
+      });
+      toast.success("Review submitted successfully!");
+      setReviewedBookings((prev) => [...prev, selectedBooking.id]); // Mark booking as reviewed
+      setShowReviewModal(false); // Close the modal
+    } catch (error) {
+      toast.error("Failed to submit review.");
     }
   };
 
@@ -280,6 +324,15 @@ const CustomerDashboard = () => {
                         Cancel
                       </button>
                     )}
+                    {booking.status === "Completed" &&
+                      !reviewedBookings.includes(booking.id) && (
+                        <button
+                          className={styles.submitButton}
+                          onClick={() => handleAddReview(booking)}
+                        >
+                          Add Review
+                        </button>
+                      )}
                   </div>
                 </div>
               ))}
@@ -318,6 +371,8 @@ const CustomerDashboard = () => {
                     </div>
                   </div>
                 ))}
+
+              {/* Add logic to show the "Add Review" button only once for completed bookings */}
             </div>
           </div>
         );
@@ -465,7 +520,7 @@ const CustomerDashboard = () => {
         </div>
         <div className={styles.statCard}>
           <p>Total Spending</p>
-          <h2>${totalSpending}</h2>
+          <h2>Rs: {totalSpending}</h2>
         </div>
       </div>
       <div className={styles.tabs}>
@@ -529,6 +584,15 @@ const CustomerDashboard = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Add Review Modal */}
+      {showReviewModal && (
+        <AddReview
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          onSubmit={handleReviewSubmit}
+        />
       )}
     </div>
   );

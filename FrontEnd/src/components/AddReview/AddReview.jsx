@@ -4,16 +4,36 @@ import styles from "./AddReview.module.css";
 const AddReview = ({ isOpen, onClose, onSubmit }) => {
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0); // For hover effect
 
   const handleSubmit = () => {
     if (feedback.trim() && rating > 0) {
-      onSubmit({ feedback, rating });
+      onSubmit({ feedback, rating }); // Pass feedback and rating to the parent handler
       setFeedback("");
       setRating(0);
       onClose();
     } else {
       alert("Please provide valid feedback and rating.");
     }
+  };
+
+  const renderStars = () => {
+    return Array.from({ length: 5 }, (_, index) => {
+      const starValue = index + 1;
+      return (
+        <span
+          key={starValue}
+          className={`${styles.star} ${
+            starValue <= (hoverRating || rating) ? styles.filledStar : ""
+          }`}
+          onClick={() => setRating(starValue)}
+          onMouseEnter={() => setHoverRating(starValue)}
+          onMouseLeave={() => setHoverRating(0)}
+        >
+          ★
+        </span>
+      );
+    });
   };
 
   if (!isOpen) return null;
@@ -36,15 +56,7 @@ const AddReview = ({ isOpen, onClose, onSubmit }) => {
         </div>
         <div className={styles.formGroup}>
           <label>Rating:</label>
-          <input
-            type="number"
-            value={rating}
-            onChange={(e) => setRating(parseFloat(e.target.value))}
-            min="0"
-            max="5"
-            step="0.1"
-            className={styles.input}
-          />
+          <div className={styles.starsContainer}>{renderStars()}</div>
         </div>
         <div className={styles.actions}>
           <button className={styles.submitButton} onClick={handleSubmit}>
