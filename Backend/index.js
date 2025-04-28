@@ -7,6 +7,8 @@ const serviceCenterTypeDefs = require("./ServiceCenter/serviceCenterTypeDefs");
 const serviceCenterResolvers = require("./ServiceCenter/serviceCenterResolver");
 const bookingTypeDefs = require("./booking/bookingTypeDefs");
 const bookingResolvers = require("./booking/bookingResolver");
+const customerFeedbackTypeDefs = require("./CustomerFeedback/CustomerFeedbackTypeDefs");
+const customerFeedbackResolvers = require("./CustomerFeedback/CustomerFeedbackResolver");
 
 const db = require("./database/connection");
 
@@ -16,12 +18,14 @@ const server = new ApolloServer({
     customerTypeDefs,
     serviceCenterTypeDefs,
     bookingTypeDefs,
+    customerFeedbackTypeDefs,
   ],
   resolvers: [
     authResolvers,
     customerResolvers,
     serviceCenterResolvers,
     bookingResolvers,
+    customerFeedbackResolvers,
   ],
   context: () => {
     return { db };

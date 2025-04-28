@@ -44,3 +44,13 @@ CREATE TABLE bookings (
     price FLOAT NOT NULL,
     status VARCHAR(50) NOT NULL
 );
+
+CREATE TABLE customer_feedback (
+    id SERIAL PRIMARY KEY,
+    booking_id INT NOT NULL REFERENCES bookings(id),
+    customer_id INT NOT NULL REFERENCES customers(id),
+    service_center_id INT NOT NULL REFERENCES service_centers(id),
+    service_type VARCHAR(255) NOT NULL,
+    feedback TEXT,
+    rating FLOAT CHECK (rating >= 1.0 AND rating <= 5.0)
+);
