@@ -35,7 +35,9 @@ module.exports = {
         [serviceCenterId]
       );
 
-      const averageRating = ratingStats.rows[0].average_rating || 0;
+      const averageRating = parseFloat(
+        (ratingStats.rows[0].average_rating || 0).toFixed(1)
+      );
       const ratingCount = ratingStats.rows[0].rating_count || 0;
 
       return {
@@ -49,8 +51,8 @@ module.exports = {
           feedback: feedback.feedback || null,
           rating: feedback.rating || null,
         })),
-        averageRating, // Add average rating to the response
-        ratingCount, // Add rating count to the response
+        averageRating, // Ensure averageRating is formatted to one decimal place
+        ratingCount,
       };
     },
     getFeedbacksByCustomerId: async (_, { customerId }, { db }) => {

@@ -1,34 +1,51 @@
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 97.7%;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem;
-  background-color: #ffffff;
+  padding: 10px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-}
-.logoLink {
-  text-decoration: none; /* Remove underline */
-  color: #007bff; /* Change text color to blue */
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+}
+
+.logoLink {
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #60bdff;
+  display: flex;
+  align-items: center;
 }
 
 .carIcon {
-  font-size: 1.5rem;
-  color: #007bff; /* Match icon color with text */
+  margin-right: 8px;
+  color: #60bdff;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
 }
 
 .navLinks {
-  list-style: none;
   display: flex;
-  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks li {
+  margin-left: 20px;
 }
 
 .navLinks a {
@@ -37,22 +54,61 @@
   font-size: 1rem;
 }
 
-.logoutButton {
-  color: #ffffff;
-  background-color: #007bff;
-  padding: 0.5em;
-  border: none;
-  cursor: pointer;
-}
-
-.navLinks a:hover {
-  color: #007bff;
+.loginLink {
+  color: #333;
 }
 
 .signupButton {
-  color: #ffffff;
-
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  background-color: #60bdff;
+  color: #fff;
+  padding: 5px 15px;
+  border-radius: 20px;
   text-decoration: none;
+  font-size: 1rem;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.userIcon {
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.userMenu {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 150px;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
 }

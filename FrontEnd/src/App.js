@@ -35,44 +35,45 @@ function App() {
       <Router>
         <div className="App">
           <NavigationBar />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-
-            <Route
-              path="/service-center-details"
-              element={<ServiceCenterDetails />}
-            />
-            <Route
-              path="/service-center-details/:id"
-              element={<ServiceCenterDetails />}
-            />
-            <Route
-              path="/customer-dashboard"
-              element={
-                <ProtectedRoute role="customer">
-                  <CustomerDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin-dashboard"
-              element={
-                <ProtectedRoute role="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/service-center-dashboard"
-              element={
-                <ProtectedRoute role="serviceCenter">
-                  <ServiceCenterDashboard />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+          <div className="content-with-margin">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route
+                path="/service-center-details"
+                element={<ServiceCenterDetails />}
+              />
+              <Route
+                path="/service-center-details/:id"
+                element={<ServiceCenterDetails />}
+              />
+              <Route
+                path="/customer-dashboard"
+                element={
+                  <ProtectedRoute role="customer">
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin-dashboard"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/service-center-dashboard"
+                element={
+                  <ProtectedRoute role="serviceCenter">
+                    <ServiceCenterDashboard />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </div>
         </div>
       </Router>
     </ApolloClientProvider>
