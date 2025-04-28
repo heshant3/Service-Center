@@ -1,5 +1,10 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
 import HomePage from "./components/HomePage/HomePage";
 import LoginPage from "./components/LoginPage/LoginPage";
@@ -10,7 +15,19 @@ import CustomerDashboard from "./components/CustomerDashboard/CustomerDashboard"
 import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import ServiceCenterDashboard from "./components/ServiceCenterDashboard/ServiceCenterDashboard";
 import ApolloClientProvider from "./components/ApolloClientProvider/ApolloClientProvider";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+
+const ProtectedRoute = ({ role, children }) => {
+  const navigate = useNavigate();
+  const userId = localStorage.getItem(`${role}Id`);
+
+  useEffect(() => {
+    if (!userId) {
+      navigate("/login"); // Redirect to login if not authenticated
+    }
+  }, [userId, navigate]);
+
+  return userId ? children : null; // Render children if authenticated
+};
 
 function App() {
   return (

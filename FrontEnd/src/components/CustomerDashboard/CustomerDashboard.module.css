@@ -345,8 +345,17 @@
 }
 
 .cancelButton {
-  background-color: #f44336;
-  color: white;
+  background-color: #ffffff;
+  color: #ff0000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-top: 2rem;
+  display: inline-block;
+  transition: transform 0.3s ease, background 0.3s ease;
 }
 
 .editButton {
