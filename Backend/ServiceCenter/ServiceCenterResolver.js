@@ -57,9 +57,21 @@ module.exports = {
             `SELECT * FROM service_types WHERE service_center_id = $1`,
             [center.service_center_id]
           );
+
+          // Fetch average rating from customer_feedback table
+          const ratingResult = await db.query(
+            `SELECT AVG(rating) AS average_rating 
+             FROM customer_feedback 
+             WHERE service_center_id = $1`,
+            [center.service_center_id]
+          );
+
+          const averageRating = ratingResult.rows[0].average_rating || 0;
+
           return {
             ...center,
             serviceTypes: serviceTypes.rows,
+            averageRating, // Add average rating to the response
           };
         })
       );
