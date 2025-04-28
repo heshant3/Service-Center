@@ -265,7 +265,7 @@ const ServiceCenterDashboard = () => {
     (appointment) => appointment.status === "Completed"
   ).length;
   const pendingBookings = appointments.filter(
-    (appointment) => appointment.status === "Pending"
+    (appointment) => appointment.status === "pending"
   ).length;
 
   if (loading) return <p>Loading...</p>;
@@ -305,32 +305,24 @@ const ServiceCenterDashboard = () => {
     setSelectedAppointment(null);
   };
 
-  const handleAction = async (action) => {
+  const handleStatusChange = async (action, bookingId) => {
     try {
-      if (action === "Confirm" && selectedAppointment) {
-        await confirmBookingById({
-          variables: { bookingId: selectedAppointment.id },
-        });
+      if (action === "Confirm") {
+        await confirmBookingById({ variables: { bookingId } });
         toast.success("Booking confirmed successfully!");
-        refetch(); // Refetch bookings after confirmation
-      } else if (action === "Cancel" && selectedAppointment) {
-        await cancelBookingById({
-          variables: { bookingId: selectedAppointment.id },
-        });
+      } else if (action === "Cancel") {
+        await cancelBookingById({ variables: { bookingId } });
         toast.success("Booking cancelled successfully!");
-        refetch(); // Refetch bookings after cancellation
-      } else if (action === "Completed" && selectedAppointment) {
-        await completeBookingById({
-          variables: { bookingId: selectedAppointment.id },
-        });
+      } else if (action === "Complete") {
+        await completeBookingById({ variables: { bookingId } });
         toast.success("Booking marked as completed successfully!");
-        refetch(); // Refetch bookings after marking as completed
       }
-      refetch(); // Ensure refetch is called after any action
-      setSelectedAppointment(null);
+      await refetch(); // Refetch bookings after status change
     } catch (error) {
-      console.error("Error performing action:", error);
-      toast.error("Failed to perform action. Please try again.");
+      console.error(`Error performing ${action} action:`, error);
+      toast.error(
+        `Failed to ${action.toLowerCase()} booking. Please try again.`
+      );
     }
   };
 
@@ -418,52 +410,84 @@ const ServiceCenterDashboard = () => {
     setIsEditingServices(false);
   };
 
+  const handleViewDetails = (appointment) => {
+    setSelectedAppointment(appointment); // Set the selected appointment
+  };
+
+  const handleClosePopup = () => {
+    setSelectedAppointment(null); // Clear the selected appointment
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "appointments":
         return (
-          <div className={styles.tableContainer}>
-            <h2>Recent Appointments</h2>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Customer</th>
-                  <th>Mobile</th>
-                  <th>Service</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((appointment) => (
-                  <tr
-                    key={appointment.id}
-                    onClick={() => handleRowClick(appointment)}
-                    className={styles.tableRow}
-                  >
-                    <td>{appointment.id}</td>
-                    <td>{appointment.customer?.name || "N/A"}</td>
-                    <td>{appointment.customer?.mobile || "N/A"}</td>
-                    <td>{appointment.serviceType}</td>
-                    <td>{appointment.date}</td>
-                    <td
-                      className={
-                        appointment.status === "Confirmed"
-                          ? styles.statusConfirmed
-                          : appointment.status === "Pending"
-                          ? styles.statusPending
-                          : appointment.status === "Completed"
-                          ? styles.statusCompleted
-                          : styles.statusCancelled // Add cancelled status styling
-                      }
-                    >
+          <div className={styles.appointmentsList}>
+            {appointments.map((appointment) => (
+              <div key={appointment.id} className={styles.appointment}>
+                <div>
+                  <h4>{appointment.customer?.name || "N/A"}</h4>
+                  <p>{appointment.serviceType}</p>
+                  <p>
+                    Date: {appointment.date} at {appointment.time}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span className={styles[appointment.status.toLowerCase()]}>
                       {appointment.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </p>
+                </div>
+                <div className={styles.appointmentActions}>
+                  <button
+                    className={styles.viewButton}
+                    onClick={() => handleViewDetails(appointment)}
+                  >
+                    View Details
+                  </button>
+                  {appointment.status === "pending" && (
+                    <>
+                      <button
+                        className={styles.confirmButton}
+                        onClick={() =>
+                          handleStatusChange("Confirm", appointment.id)
+                        }
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        className={styles.cancelButton}
+                        onClick={() =>
+                          handleStatusChange("Cancel", appointment.id)
+                        }
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                  {appointment.status === "Confirmed" && (
+                    <>
+                      <button
+                        className={styles.completeButton}
+                        onClick={() =>
+                          handleStatusChange("Complete", appointment.id)
+                        }
+                      >
+                        Complete
+                      </button>
+                      <button
+                        className={styles.cancelButton}
+                        onClick={() =>
+                          handleStatusChange("Cancel", appointment.id)
+                        }
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         );
       case "profile":
@@ -613,23 +637,13 @@ const ServiceCenterDashboard = () => {
         </button>
       </div>
       {renderContent()}
-      {selectedAppointment && activeTab === "appointments" && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <button className={styles.closeButton} onClick={handleCloseModal}>
-              &times;
-            </button>
-            <h2>Appointment Details</h2>
-            <p>
-              <strong>ID:</strong> {selectedAppointment.id}
-            </p>
+      {selectedAppointment && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupCard}>
+            <h3>Appointment Details</h3>
             <p>
               <strong>Customer:</strong>{" "}
               {selectedAppointment.customer?.name || "N/A"}
-            </p>
-            <p>
-              <strong>Mobile:</strong>{" "}
-              {selectedAppointment.customer?.mobile || "N/A"}
             </p>
             <p>
               <strong>Service:</strong> {selectedAppointment.serviceType}
@@ -638,45 +652,22 @@ const ServiceCenterDashboard = () => {
               <strong>Date:</strong> {selectedAppointment.date}
             </p>
             <p>
-              <strong>Price:</strong> Rs. {selectedAppointment.price || "N/A"}
+              <strong>Time:</strong> {selectedAppointment.time}
             </p>
             <p>
-              <strong>Status:</strong> {selectedAppointment.status}
+              <strong>Price:</strong> Rs. {selectedAppointment.price}
             </p>
-            <div className={styles.modalActions}>
-              {selectedAppointment.status === "Pending" && (
-                <>
-                  <button
-                    className={styles.confirmButton}
-                    onClick={() => handleAction("Confirm")}
-                  >
-                    Confirm
-                  </button>
-                  <button
-                    className={styles.cancelButton}
-                    onClick={() => handleAction("Cancel")}
-                  >
-                    Cancel
-                  </button>
-                </>
-              )}
-              {selectedAppointment.status === "Confirmed" && (
-                <>
-                  <button
-                    className={styles.completedButton}
-                    onClick={() => handleAction("Completed")}
-                  >
-                    Completed
-                  </button>
-                  <button
-                    className={styles.cancelButton}
-                    onClick={() => handleAction("Cancel")}
-                  >
-                    Cancel
-                  </button>
-                </>
-              )}
-            </div>
+            <p>
+              <strong>Status:</strong>{" "}
+              <span
+                className={styles[selectedAppointment.status.toLowerCase()]}
+              >
+                {selectedAppointment.status}
+              </span>
+            </p>
+            <button className={styles.closeButton} onClick={handleClosePopup}>
+              Close
+            </button>
           </div>
         </div>
       )}
