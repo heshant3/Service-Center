@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaCar } from "react-icons/fa"; // Import car icon
 import styles from "./NavigationBar.module.css";
 
 const NavigationBar = () => {
@@ -17,7 +18,9 @@ const NavigationBar = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link to="/">AutoServe Hub</Link>
+        <Link to="/" className={styles.logoLink}>
+          <FaCar className={styles.carIcon} /> AutoServe Hub
+        </Link>
       </div>
       <ul className={styles.navLinks}>
         <li>
