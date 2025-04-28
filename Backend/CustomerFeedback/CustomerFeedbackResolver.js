@@ -17,24 +17,41 @@ module.exports = {
     getFeedbacksByServiceCenterId: async (_, { serviceCenterId }, { db }) => {
       const feedbacks = await db
         .query(
-          `SELECT cf.*, b.service_type, sc.id AS service_center_id
+          `SELECT cf.*, b.service_type, sc.id AS service_center_id, cd.name AS customer_name
            FROM customer_feedback cf
            LEFT JOIN bookings b ON cf.booking_id = b.id
            LEFT JOIN service_centers sc ON cf.service_center_id = sc.id
+           LEFT JOIN customersdata cd ON cf.customer_id = cd.id
            WHERE cf.service_center_id = $1`,
           [serviceCenterId]
         )
         .then((res) => res.rows);
 
-      return feedbacks.map((feedback) => ({
-        id: feedback.id,
-        bookingId: feedback.booking_id || null,
-        customerId: feedback.customer_id || null,
-        serviceCenterId: feedback.service_center_id || null,
-        serviceType: feedback.service_type || null,
-        feedback: feedback.feedback || null,
-        rating: feedback.rating || null,
-      }));
+      // Calculate average rating and rating count
+      const ratingStats = await db.query(
+        `SELECT AVG(rating) AS average_rating, COUNT(rating) AS rating_count 
+         FROM customer_feedback 
+         WHERE service_center_id = $1`,
+        [serviceCenterId]
+      );
+
+      const averageRating = ratingStats.rows[0].average_rating || 0;
+      const ratingCount = ratingStats.rows[0].rating_count || 0;
+
+      return {
+        feedbacks: feedbacks.map((feedback) => ({
+          id: feedback.id,
+          bookingId: feedback.booking_id || null,
+          customerId: feedback.customer_id || null,
+          customerName: feedback.customer_name || null, // Add customer name
+          serviceCenterId: feedback.service_center_id || null,
+          serviceType: feedback.service_type || null,
+          feedback: feedback.feedback || null,
+          rating: feedback.rating || null,
+        })),
+        averageRating, // Add average rating to the response
+        ratingCount, // Add rating count to the response
+      };
     },
     getFeedbacksByCustomerId: async (_, { customerId }, { db }) => {
       const feedbacks = await db

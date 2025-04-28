@@ -5,16 +5,23 @@ const customerFeedbackTypeDefs = gql`
     id: ID!
     bookingId: ID # Make bookingId optional
     customerId: ID # Make customerId optional
+    customerName: String # Add customerName field
     serviceCenterId: ID
     serviceType: String
     feedback: String
     rating: Float
   }
 
+  type FeedbackStats {
+    feedbacks: [CustomerFeedback]
+    averageRating: Float
+    ratingCount: Int
+  }
+
   type Query {
     getFeedbacks: [CustomerFeedback]
     getFeedbackByBookingId(bookingId: ID!): CustomerFeedback
-    getFeedbacksByServiceCenterId(serviceCenterId: ID!): [CustomerFeedback]
+    getFeedbacksByServiceCenterId(serviceCenterId: ID!): FeedbackStats # Updated return type
     getFeedbacksByCustomerId(customerId: ID!): [CustomerFeedback]
   }
 
