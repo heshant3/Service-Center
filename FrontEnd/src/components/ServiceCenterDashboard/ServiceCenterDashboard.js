@@ -469,173 +469,111 @@ const ServiceCenterDashboard = () => {
       case "profile":
         return (
           <div className={styles.profileContainer}>
-            <h2>Service Center Profile</h2>
-            {isEditingProfile ? (
-              <>
-                <p>
-                  <strong>Center Name:</strong>{" "}
-                  <input
-                    type="text"
-                    name="name"
-                    value={tempProfile.name}
-                    placeholder={profile.name}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Location:</strong>{" "}
-                  <input
-                    type="text"
-                    name="address"
-                    value={tempProfile.address}
-                    placeholder={profile.address}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Mobile:</strong>{" "}
-                  <input
-                    type="text"
-                    name="mobile"
-                    value={tempProfile.mobile}
-                    placeholder={profile.mobile}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Email:</strong>{" "}
-                  <input
-                    type="text"
-                    name="email"
-                    value={tempProfile.email}
-                    placeholder={profile.email}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Password:</strong>{" "}
-                  <input
-                    type="text"
-                    name="password"
-                    value={tempProfile.password}
-                    placeholder="********"
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>About:</strong>{" "}
-                  <textarea
-                    name="about"
-                    value={tempProfile.about}
-                    placeholder={profile.about}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Business Hours:</strong>{" "}
-                  <input
-                    type="text"
-                    name="businesshours"
-                    value={tempProfile.businesshours}
-                    placeholder={profile.businesshours}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Image URL:</strong>{" "}
-                  <input
-                    type="text"
-                    name="imageurl"
-                    value={tempProfile.imageurl}
-                    placeholder={profile.imageurl}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <div className={styles.buttonGroup}>
-                  <button onClick={handleSaveProfile}>Save</button>
-                  <button onClick={handleCancelEdit}>Cancel</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p>
-                  <strong>Center Name:</strong> {profile.name}
-                </p>
-                <p>
-                  <strong>Location:</strong> {profile.address}
-                </p>
-                <p>
-                  <strong>Mobile:</strong> {profile.mobile}
-                </p>
-                <p>
-                  <strong>Email:</strong> {profile.email}
-                </p>
-                <p>
-                  <strong>Password:</strong> ********
-                </p>
-                <p>
-                  <strong>About:</strong> {profile.about}
-                </p>
-                <p>
-                  <strong>Business Hours:</strong> {profile.businesshours}
-                </p>
-                <p>
-                  <strong>Image URL:</strong> {profile.imageurl}
-                </p>
-                <button onClick={() => setIsEditingProfile(true)}>Edit</button>
-              </>
-            )}
-            <h3>Service Types & Prices</h3>
-            {isEditingServices ? (
-              <>
-                <ul>
-                  {tempServices.map((service, index) => (
-                    <li key={index}>
-                      <input
-                        type="checkbox"
-                        checked={service.selected}
-                        onChange={(e) =>
-                          handleServiceChange(
-                            index,
-                            "selected",
-                            e.target.checked
-                          )
-                        }
-                      />{" "}
-                      <input
-                        type="text"
-                        value={service.name}
-                        readOnly
-                        style={{ border: "none", background: "transparent" }}
-                      />{" "}
-                      Rs.
+            <h2 className={styles.sectionTitle}>Service Center Profile</h2>
+            <div className={styles.profileCard}>
+              {Object.keys(profile).map(
+                (key) =>
+                  key !== "service_center_id" && (
+                    <div key={key} className={styles.profileField}>
+                      <label className={styles.profileLabel}>
+                        {key.replace(/_/g, " ").toUpperCase()}:
+                      </label>
+                      {isEditingProfile ? (
+                        <input
+                          type="text"
+                          name={key}
+                          value={tempProfile[key] || profile[key]} // Show previously entered data
+                          placeholder={`Please enter your ${key.replace(
+                            /_/g,
+                            " "
+                          )}`}
+                          onChange={handleProfileChange}
+                          className={styles.profileInput}
+                        />
+                      ) : (
+                        <div className={styles.profileValue}>
+                          {profile[key] ||
+                            `Please enter your ${key.replace(/_/g, " ")}`}
+                        </div>
+                      )}
+                    </div>
+                  )
+              )}
+            </div>
+            <div className={styles.buttonGroup}>
+              {isEditingProfile ? (
+                <>
+                  <button
+                    className={styles.saveButton}
+                    onClick={handleSaveProfile}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  className={styles.editButton}
+                  onClick={() => setIsEditingProfile(true)}
+                >
+                  Edit Profile
+                </button>
+              )}
+            </div>
+            <div className={styles.serviceTypesContainer}>
+              <h2 className={styles.sectionTitle}>Service Types & Prices</h2>
+              <ul className={styles.serviceTypeList}>
+                {tempServices.map((service, index) => (
+                  <li key={index} className={styles.serviceTypeItem}>
+                    <div className={styles.serviceTypeName}>{service.name}</div>
+                    {isEditingServices ? (
                       <input
                         type="number"
                         value={service.price}
                         onChange={(e) =>
                           handleServiceChange(index, "price", e.target.value)
                         }
+                        className={styles.serviceTypeInput}
                       />
-                    </li>
-                  ))}
-                </ul>
-                <div className={styles.buttonGroup}>
-                  <button onClick={handleSaveServices}>Save</button>
-                  <button onClick={handleCancelServicesEdit}>Cancel</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <ul>
-                  {services.map((service, index) => (
-                    <li key={index}>
-                      {service.name} - <strong>Rs. {service.price}</strong>
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => setIsEditingServices(true)}>Edit</button>
-              </>
-            )}
+                    ) : (
+                      <div className={styles.serviceTypePrice}>
+                        Rs. {service.price}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className={styles.serviceButtonGroup}>
+                {isEditingServices ? (
+                  <>
+                    <button
+                      className={styles.saveButton}
+                      onClick={handleSaveServices}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className={styles.cancelButton}
+                      onClick={handleCancelServicesEdit}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className={styles.editButton}
+                    onClick={() => setIsEditingServices(true)}
+                  >
+                    Edit Services
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         );
       default:
@@ -645,8 +583,7 @@ const ServiceCenterDashboard = () => {
 
   return (
     <div className={styles.dashboardContainer}>
-      <Toaster /> {/* Add Toaster component */}
-      <h1>Service Center Dashboard</h1>
+      <Toaster />
       <div className={styles.stats}>
         <div className={styles.statCard}>
           <p>Total Bookings</p>

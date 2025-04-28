@@ -151,7 +151,8 @@ module.exports = {
         email,
         password,
         about,
-        businessHours,
+        businesshours, // Ensure this is handled
+        imageurl, // Ensure this is handled
       },
       { db }
     ) => {
@@ -166,10 +167,19 @@ module.exports = {
              mobile = COALESCE($2, mobile), 
              address = COALESCE($3, address), 
              about = COALESCE($4, about), 
-             businessHours = COALESCE($5, businessHours) 
-         WHERE service_center_id = $6 
+             businesshours = COALESCE($5, businesshours), 
+             imageurl = COALESCE($6, imageurl) 
+         WHERE service_center_id = $7 
          RETURNING *`,
-        [name, mobile, address, about, businessHours, service_center_id]
+        [
+          name,
+          mobile,
+          address,
+          about,
+          businesshours,
+          imageurl,
+          service_center_id,
+        ]
       );
 
       if (email || hashedPassword) {
