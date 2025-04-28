@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate import
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, gql } from "@apollo/client";
-import { toast, Toaster } from "sonner"; // Added sonner imports
+import { toast, Toaster } from "sonner";
+
 import styles from "./SignupPage.module.css";
 
 // GraphQL mutations
@@ -33,8 +34,8 @@ const REGISTER_SERVICE_CENTER = gql`
 `;
 
 const SignupPage = () => {
-  const navigate = useNavigate(); // Initialize navigate function
-  const [accountType, setAccountType] = useState("customer"); // State for account type
+  const navigate = useNavigate();
+  const [accountType, setAccountType] = useState("customer");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -49,10 +50,6 @@ const SignupPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  };
-
-  const handleAccountTypeChange = (e) => {
-    setAccountType(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -76,77 +73,112 @@ const SignupPage = () => {
   };
 
   return (
-    <div className={styles.signupContainer}>
-      <Toaster /> {/* Added Toaster component */}
-      <h1>Create Your Account</h1>
-      <div className={styles.signupBox}>
-        <h2>Signup</h2>
-        <p>Fill in the details to create your account</p>
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleInputChange}
-          />
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleInputChange}
-          />
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-          />
-          <label>Account Type</label>
-          <div className={styles.radioGroup}>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="customer"
-                checked={accountType === "customer"}
-                onChange={handleAccountTypeChange}
-              />
-              Customer
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="admin"
-                checked={accountType === "admin"}
-                onChange={handleAccountTypeChange}
-              />
-              Admin
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="serviceCenter"
-                checked={accountType === "serviceCenter"}
-                onChange={handleAccountTypeChange}
-              />
-              Service Center
-            </label>
+    <div className={styles.container}>
+      <Toaster />
+      <div className={styles.leftPanel}>
+        <div className={styles.overlay}>
+          <h1>Vehicle Service Hub</h1>
+          <p>Your trusted partner in vehicle care</p>
+        </div>
+      </div>
+      <div className={styles.rightPanel}>
+        <div className={styles.formContainer}>
+          <h2>Create Account</h2>
+          <p className={styles.subtitle}>
+            Get started with Vehicle Service Hub
+          </p>
+
+          <div className={styles.userTypes}>
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "customer" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("customer")}
+            >
+              <div className={styles.userTypeIcon}>👤</div>
+              <div>
+                <h3>Customer</h3>
+                <p>Book services</p>
+              </div>
+            </button>
+
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "serviceCenter" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("serviceCenter")}
+            >
+              <div className={styles.userTypeIcon}>🔧</div>
+              <div>
+                <h3>Service Center</h3>
+                <p>Manage services</p>
+              </div>
+            </button>
+
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "admin" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("admin")}
+            >
+              <div className={styles.userTypeIcon}>⚙️</div>
+              <div>
+                <h3>Admin</h3>
+                <p>System control</p>
+              </div>
+            </button>
           </div>
-          <button type="submit" className={styles.signupButton}>
-            Signup
-          </button>
-        </form>
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label>Email Address</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label>Password</label>
+              <div className={styles.passwordInput}>
+                <input
+                  type={"password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="Confirm your password"
+                required
+              />
+            </div>
+
+            <button type="submit" className={styles.submitBtn}>
+              Create Account
+            </button>
+
+            <p className={styles.signupPrompt}>
+              Already have an account?{" "}
+              <Link to="/login" className={styles.signupLink}>
+                Sign in
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

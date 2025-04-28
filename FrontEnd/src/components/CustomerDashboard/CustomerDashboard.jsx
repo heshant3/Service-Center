@@ -134,142 +134,17 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
 .popupCard {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
-}
-
-.popupCard h3 {
-  margin: 0 0 1rem;
-  font-size: 1.5rem;
-  color: #1a1f2c;
-}
-
-.popupCard p {
-  margin: 0.5rem 0;
-  color: #64748b;
-}
-
-.popupCard .statusCancelled {
-  color: #dc2626;
-  background-color: #fee2e2;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  display: inline-block;
-}
-
-.popupCard .closeButton {
-  background-color: #3b82f6;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  margin-top: 1rem;
-}
-
-.personalInfoContainer {
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.sectionTitle {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 16px;
-}
-
-.personalInfoCard {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.inputGroup,
-.infoGroup {
-  margin-bottom: 16px;
-  text-align: left;
-}
-
-.inputLabel,
-.infoLabel {
-  display: block;
-  font-size: 14px;
-  font-weight: bold;
-  color: #555;
-  margin-bottom: 8px;
-  text-align: left;
-}
-
-.inputField {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.inputStatic {
-  display: inline-block;
-  font-size: 14px;
-  color: #333;
-  padding: 10px 0;
-}
-
-.infoValue {
-  font-size: 14px;
-  color: #333;
-}
-
-.actionButtons {
-  display: flex;
-  gap: 10px;
-}
-
-.saveButton,
-.cancelButton,
-.editButton {
-  padding: 10px 20px;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.saveButton {
-  background-color: #4caf50;
-  color: white;
-}
-
-.cancelButton {
-  background-color: #f44336;
-  color: white;
-}
-
-.editButton {
-  background-color: #008cba;
-  color: white;
-}
-
-.saveButton:hover,
-.cancelButton:hover,
-.editButton:hover {
-  opacity: 0.9;
+  padding: 2rem;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }

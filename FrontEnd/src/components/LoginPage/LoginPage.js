@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
-import { toast, Toaster } from "sonner"; // Import toast from sonner
+import { toast, Toaster } from "sonner";
 import styles from "./LoginPage.module.css";
+import { Eye, EyeOff } from "lucide-react";
 
 // GraphQL mutation for customer login
 const LOGIN_CUSTOMER = gql`
@@ -38,6 +39,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState("customer");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [loginCustomer] = useMutation(LOGIN_CUSTOMER);
   const [loginAdmin] = useMutation(LOGIN_ADMIN);
@@ -85,69 +87,115 @@ const LoginPage = () => {
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.container}>
       <Toaster />
-      <h1>Login to Your Account</h1>
-      <div className={styles.loginBox}>
-        <h2>Login</h2>
-        <p>Enter your credentials to access your account</p>
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <label>Account Type</label>
-          <div className={styles.radioGroup}>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="customer"
-                checked={accountType === "customer"}
-                onChange={(e) => setAccountType(e.target.value)}
-              />
-              Customer
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="serviceCenter"
-                onChange={(e) => setAccountType(e.target.value)}
-              />
-              Service Center
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="accountType"
-                value="admin"
-                onChange={(e) => setAccountType(e.target.value)}
-              />
-              Admin
-            </label>
-          </div>
-          <button type="submit" className={styles.loginButton}>
-            Login
-          </button>
-        </form>
-        <p>
-          Don't have an account? <Link to="/signup">Sign up</Link>
-        </p>
+      <div className={styles.leftPanel}>
+        <div className={styles.overlay}>
+          <h1>AutoServe Hub</h1>
+          <p>Your trusted partner in vehicle care</p>
+        </div>
       </div>
-      <footer className={styles.footer}>
-        © 2025 AutoServe Hub. All rights reserved.
-      </footer>
+      <div className={styles.rightPanel}>
+        <div className={styles.formContainer}>
+          <h2>Welcome Back</h2>
+          <p className={styles.subtitle}>Sign in to continue</p>
+
+          <div className={styles.userTypes}>
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "customer" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("customer")}
+            >
+              <div className={styles.userTypeIcon}>👤</div>
+              <div>
+                <h3>Customer</h3>
+                <p>Book services</p>
+              </div>
+            </button>
+
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "serviceCenter" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("serviceCenter")}
+            >
+              <div className={styles.userTypeIcon}>🔧</div>
+              <div>
+                <h3>Service Center</h3>
+                <p>Manage services</p>
+              </div>
+            </button>
+
+            <button
+              className={`${styles.userTypeBtn} ${
+                accountType === "admin" ? styles.active : ""
+              }`}
+              onClick={() => setAccountType("admin")}
+            >
+              <div className={styles.userTypeIcon}>⚙️</div>
+              <div>
+                <h3>Admin</h3>
+                <p>System control</p>
+              </div>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label>Email Address</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label>Password</label>
+              <div className={styles.passwordInput}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={styles.showPassword}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.rememberForgot}>
+              <label className={styles.checkbox}>
+                <input type="checkbox" />
+                Remember me
+              </label>
+              <Link to="/forgot-password" className={styles.forgotLink}>
+                Forgot password?
+              </Link>
+            </div>
+
+            <button type="submit" className={styles.submitBtn}>
+              Sign In
+            </button>
+
+            <p className={styles.signupPrompt}>
+              Don't have an account?{" "}
+              <Link to="/signup" className={styles.signupLink}>
+                Sign up
+              </Link>
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

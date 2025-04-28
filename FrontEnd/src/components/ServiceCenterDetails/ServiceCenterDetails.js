@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import { toast, Toaster } from "sonner"; // Added sonner imports
+import { toast, Toaster } from "sonner";
 import styles from "./ServiceCenterDetails.module.css";
 
 const GET_ALL_SERVICE_CENTER_DETAILS_BY_ID = gql`
@@ -21,6 +21,23 @@ const GET_ALL_SERVICE_CENTER_DETAILS_BY_ID = gql`
         full_service_price
         comprehensive_price
       }
+    }
+  }
+`;
+
+const GET_FEEDBACKS_BY_SERVICE_CENTER_ID = gql`
+  query GetFeedbacksByServiceCenterId($serviceCenterId: ID!) {
+    getFeedbacksByServiceCenterId(serviceCenterId: $serviceCenterId) {
+      feedbacks {
+        id
+        customerName
+        customerId
+        serviceType
+        feedback
+        rating
+      }
+      averageRating
+      ratingCount
     }
   }
 `;
@@ -65,6 +82,10 @@ const ServiceCenterDetails = () => {
     }
   );
 
+  const { data: feedbackData } = useQuery(GET_FEEDBACKS_BY_SERVICE_CENTER_ID, {
+    variables: { serviceCenterId: id },
+  });
+
   const [addBooking] = useMutation(ADD_BOOKING);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +93,7 @@ const ServiceCenterDetails = () => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [price, setPrice] = useState(null);
+  const [visibleReviews, setVisibleReviews] = useState(3); // State to track visible reviews
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
@@ -114,7 +136,7 @@ const ServiceCenterDetails = () => {
     };
 
     try {
-      const { data } = await addBooking({ variables: bookingData });
+      await addBooking({ variables: bookingData }); // Removed unused `data`
 
       toast.success("Booking Confirmed!"); // Replaced alert with toast
       handleCloseModal();
@@ -134,85 +156,160 @@ const ServiceCenterDetails = () => {
     return <p>No service center details found.</p>;
   }
 
+  const handleShowMoreReviews = () => {
+    setVisibleReviews((prev) => prev + 3); // Show 3 more reviews
+  };
+
   return (
-    <div className={styles.detailsContainer}>
-      <Toaster /> {/* Added Toaster component */}
-      <div className={styles.detailsContent}>
-        <div className={styles.imageSection}>
+    <div className={styles.container}>
+      <Toaster />
+      <div className={styles.header}>
+        <div className={styles.imageContainer}>
           {center.imageurl ? (
-            <img src={center.imageurl} alt={`${center.name} image`} />
+            <img
+              src={center.imageurl}
+              alt={center.name}
+              className={styles.image}
+            />
           ) : (
             <div className={styles.imagePlaceholder}>No Image</div>
           )}
         </div>
-        <div className={styles.infoSection}>
-          <h2>{center.name}</h2>
-          <p>{center.address}</p>
-          <p>{center.about}</p>
-          <div className={styles.businessInfo}>
-            <p>
-              <strong>Business Hours</strong>
-              <br />
-              {center.businesshours}
-            </p>
-            <p>
-              <strong>Contact</strong>
-              <br />
-              {center.mobile}
-              <br />
-              {center.email}
-            </p>
-          </div>
-        </div>
-        <div className={styles.bookingSection}>
-          <h2>Book an Appointment</h2>
-          <button className={styles.bookButton} onClick={handleOpenModal}>
-            Book Now
-          </button>
-          {price && (
-            <div className={styles.priceDisplay}>
-              Selected Service Price: Rs. {price}
+        <div className={styles.detailsContainer}>
+          <div>
+            <h1 className={styles.title}>{center.name}</h1>
+            <div className={styles.location}>
+              <span className={styles.locationIcon}>📍</span>
+              <span>{center.address}</span>
             </div>
-          )}
-          <div className={styles.bookingInfo}>
-            <h3>Why book with AutoServe Hub?</h3>
-            <ul>
-              <li>Instant confirmation</li>
-              <li>Transparent pricing</li>
-              <li>Free cancellation 24h in advance</li>
-            </ul>
+            <p className={styles.description}>{center.about}</p>
+            <div className={styles.rating}>
+              <span className={styles.ratingScore}>
+                {feedbackData?.getFeedbacksByServiceCenterId.averageRating || 0}
+              </span>
+              <div className={styles.stars}>★★★★★</div>
+              <span className={styles.reviews}>
+                Based on{" "}
+                {feedbackData?.getFeedbacksByServiceCenterId.ratingCount || 0}{" "}
+                reviews
+              </span>
+            </div>
+          </div>
+          <div>
+            <button className={styles.bookButton} onClick={handleOpenModal}>
+              Book Now
+            </button>
+            <div className={styles.features}>
+              <div className={styles.featureItem}>
+                <span className={styles.checkIcon}>✓</span>
+                <span>Instant confirmation</span>
+              </div>
+              <div className={styles.featureItem}>
+                <span className={styles.checkIcon}>✓</span>
+                <span>Transparent pricing</span>
+              </div>
+              <div className={styles.featureItem}>
+                <span className={styles.checkIcon}>✓</span>
+                <span>Free cancellation 24h in advance</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className={styles.pricingSection}>
-        <h2>Service Pricing</h2>
-        <table className={styles.pricingTable}>
-          <thead>
-            <tr>
-              <th>Service Type</th>
-              <th>Price (₹)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Basic Service</td>
-              <td>{center.serviceTypes[0].basic_price}</td>
-            </tr>
-            <tr>
-              <td>Half Service</td>
-              <td>{center.serviceTypes[0].half_service_price}</td>
-            </tr>
-            <tr>
-              <td>Full Service</td>
-              <td>{center.serviceTypes[0].full_service_price}</td>
-            </tr>
-            <tr>
-              <td>Comprehensive Service</td>
-              <td>{center.serviceTypes[0].comprehensive_price}</td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div className={styles.infoSection}>
+        <div className={styles.infoCard}>
+          <div className={styles.infoCardTitle}>
+            <span className={styles.infoIcon}>🕒</span>
+            <span>Business Hours</span>
+          </div>
+          <div className={styles.infoContent}>{center.businesshours}</div>
+        </div>
+        <div className={styles.infoCard}>
+          <div className={styles.infoCardTitle}>
+            <span className={styles.infoIcon}>📞</span>
+            <span>Contact</span>
+          </div>
+          <div className={styles.infoContent}>
+            <div className={styles.contactInfo}>{center.mobile}</div>
+            <div className={styles.contactInfo}>{center.email}</div>
+          </div>
+        </div>
+        <div className={styles.infoCard}>
+          <div className={styles.infoCardTitle}>
+            <span className={styles.infoIcon}>🔧</span>
+            <span>Our Services</span>
+          </div>
+          <div className={styles.infoContent}>{center.about}</div>
+        </div>
       </div>
+
+      <div className={styles.pricingSection}>
+        <h2 className={styles.sectionTitle}>Service Pricing</h2>
+        <div className={styles.pricingTable}>
+          <div className={styles.pricingHeader}>
+            <span>Service Type</span>
+            <span>Price (Rs)</span>
+          </div>
+          <div className={styles.pricingRow}>
+            <span>Basic Service</span>
+            <span>{center.serviceTypes[0].basic_price}</span>
+          </div>
+          <div className={styles.pricingRow}>
+            <span>Half Service</span>
+            <span>{center.serviceTypes[0].half_service_price}</span>
+          </div>
+          <div className={styles.pricingRow}>
+            <span>Full Service</span>
+            <span>{center.serviceTypes[0].full_service_price}</span>
+          </div>
+          <div className={styles.pricingRow}>
+            <span>Comprehensive Service</span>
+            <span>{center.serviceTypes[0].comprehensive_price}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.reviewsSection}>
+        <h2 className={styles.sectionTitle}>What Our Customers Say</h2>
+        <div className={styles.reviewsContainer}>
+          {feedbackData?.getFeedbacksByServiceCenterId.feedbacks
+            .slice(0, visibleReviews) // Show only the visible reviews
+            .map((feedback) => (
+              <div key={feedback.id} className={styles.reviewCard}>
+                <div className={styles.reviewHeader}>
+                  <div className={styles.reviewerInitial}>
+                    {feedback.customerName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className={styles.reviewerInfo}>
+                    <div className={styles.reviewerName}>
+                      {feedback.customerName}
+                    </div>
+                    <div className={styles.stars}>
+                      {"★".repeat(feedback.rating)}
+                      {"☆".repeat(5 - feedback.rating)}
+                    </div>
+                  </div>
+                </div>
+                <p className={styles.reviewText}>{feedback.feedback}</p>
+                <div className={styles.reviewMeta}>
+                  <span>{new Date().toLocaleDateString()}</span>
+                  <span>{feedback.serviceType}</span>
+                </div>
+              </div>
+            ))}
+        </div>
+        {visibleReviews <
+          feedbackData?.getFeedbacksByServiceCenterId.feedbacks.length && (
+          <button
+            className={styles.viewAllButton}
+            onClick={handleShowMoreReviews}
+          >
+            Show More
+          </button>
+        )}
+      </div>
+
       {isModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -230,7 +327,6 @@ const ServiceCenterDetails = () => {
                 Comprehensive Service
               </option>
             </select>
-
             <label>Date</label>
             <input
               type="date"

@@ -75,16 +75,17 @@ const CANCEL_BOOKING_BY_ID = gql`
 
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
-  const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
-    address: "", // Moved address field below name
+    address: "",
     mobile: "",
     email: "",
     password: "********",
+    customer_id: "", // Add customer_id to profile state
   });
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null); // State for selected booking
+  const [showPopup, setShowPopup] = useState(false); // State for popup visibility
 
   // Fetch customer ID from local storage
   const customerId = localStorage.getItem("customerId");
@@ -117,13 +118,15 @@ const CustomerDashboard = () => {
   // Update profile state when data is fetched
   useEffect(() => {
     if (data && data.getCustomerDataById) {
-      const { name, address, mobile, email } = data.getCustomerDataById; // Include email
+      const { id, name, address, mobile, email, customer_id } =
+        data.getCustomerDataById; // Include customer_id
       setProfile((prevProfile) => ({
         ...prevProfile,
         name,
         address,
         mobile,
-        email, // Update email in profile
+        email,
+        customer_id, // Update customer_id in profile
       }));
     }
   }, [data]);
@@ -132,13 +135,13 @@ const CustomerDashboard = () => {
   if (error) return <p>Error loading customer data.</p>;
 
   const handleViewDetails = (booking) => {
-    setSelectedBooking(booking);
-    setShowModal(true);
+    setSelectedBooking(booking); // Set the selected booking
+    setShowPopup(true); // Show the popup
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedBooking(null);
+  const handleClosePopup = () => {
+    setShowPopup(false); // Hide the popup
+    setSelectedBooking(null); // Clear the selected booking
   };
 
   const handleCancelBooking = async (bookingId) => {
@@ -196,6 +199,23 @@ const CustomerDashboard = () => {
     setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
   };
 
+  const handleCancelEdit = () => {
+    if (data && data.getCustomerDataById) {
+      const { name, address, mobile, email, customer_id } =
+        data.getCustomerDataById;
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        name,
+        address,
+        mobile,
+        email,
+        customer_id, // Reset profile to original data
+        password: "********", // Reset password field
+      }));
+    }
+    setIsEditing(false); // Exit edit mode
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
       case "Confirmed":
@@ -209,6 +229,24 @@ const CustomerDashboard = () => {
     }
   };
 
+  // Calculate counts based on status
+  const totalAppointments = bookingsData?.getBookingsByCustomerId?.length || 0;
+  const upcomingAppointments =
+    bookingsData?.getBookingsByCustomerId?.filter(
+      (booking) =>
+        booking.status === "Confirmed" || booking.status === "pending"
+    ).length || 0;
+  const completedServices =
+    bookingsData?.getBookingsByCustomerId?.filter(
+      (booking) => booking.status === "Completed"
+    ).length || 0;
+  const totalSpending =
+    bookingsData?.getBookingsByCustomerId?.reduce(
+      (sum, booking) =>
+        booking.status === "Completed" ? sum + booking.price : sum,
+      0
+    ) || 0;
+
   const renderContent = () => {
     switch (activeTab) {
       case "appointments":
@@ -217,7 +255,6 @@ const CustomerDashboard = () => {
 
         return (
           <div className={styles.tabContent}>
-            <h3>Appointments</h3>
             <div className={styles.appointmentsList}>
               {bookingsData?.getBookingsByCustomerId.map((booking) => (
                 <div key={booking.id} className={styles.appointment}>
@@ -227,105 +264,181 @@ const CustomerDashboard = () => {
                     <p>
                       Date: {booking.date} at {booking.time}
                     </p>
-                    <button onClick={() => handleViewDetails(booking)}>
+                  </div>
+                  <div className={styles.appointmentActions}>
+                    <button
+                      className={styles.viewButton}
+                      onClick={() => handleViewDetails(booking)}
+                    >
                       View Details
                     </button>
                     {["Confirmed", "pending"].includes(booking.status) && (
-                      <>
-                        {" | "}
-                        <button
-                          className={styles.cancel}
-                          onClick={() => handleCancelBooking(booking.id)}
-                        >
-                          Cancel
-                        </button>
-                      </>
+                      <button
+                        className={styles.cancelButton}
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        Cancel
+                      </button>
                     )}
                   </div>
-                  <span className={getStatusClass(booking.status)}>
-                    {booking.status}
-                  </span>
                 </div>
               ))}
             </div>
           </div>
         );
 
+      case "upcoming":
+        return (
+          <div className={styles.tabContent}>
+            <div className={styles.appointmentsList}>
+              {bookingsData?.getBookingsByCustomerId
+                ?.filter((booking) => booking.status === "pending")
+                .map((booking) => (
+                  <div key={booking.id} className={styles.appointment}>
+                    <div>
+                      <h4>{booking.serviceCenter.name}</h4>
+                      <p>{booking.serviceType}</p>
+                      <p>
+                        Date: {booking.date} at {booking.time}
+                      </p>
+                    </div>
+                    <div className={styles.appointmentActions}>
+                      <button
+                        className={styles.viewButton}
+                        onClick={() => handleViewDetails(booking)}
+                      >
+                        View Details
+                      </button>
+                      <button
+                        className={styles.cancelButton}
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        );
+
       case "profile":
         return (
-          <div className={`${styles.tabContent} ${styles.personalInfo}`}>
-            <h3>Personal Information</h3>
-            {isEditing ? (
-              <>
-                <p>
-                  <strong>Name:</strong>{" "}
-                  <input
-                    type="text"
-                    name="name"
-                    value={profile.name}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Address:</strong>{" "}
-                  <input
-                    type="text"
-                    name="address"
-                    value={profile.address}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Mobile Number:</strong>{" "}
-                  <input
-                    type="text"
-                    name="mobile"
-                    value={profile.mobile}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Email:</strong>{" "}
-                  <input
-                    type="email"
-                    name="email"
-                    value={profile.email}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-                <p>
-                  <strong>Password:</strong>{" "}
-                  <input
-                    type="password"
-                    name="password"
-                    value={profile.password}
-                    onChange={handleProfileChange}
-                  />
-                </p>
-
-                <button onClick={handleEditToggle}>Save</button>
-              </>
-            ) : (
-              <>
-                <p>
-                  <strong>Name:</strong> {profile.name}
-                </p>
-                <p>
-                  <strong>Address:</strong> {profile.address}
-                </p>
-                <p>
-                  <strong>Mobile Number:</strong> {profile.mobile}
-                </p>
-                <p>
-                  <strong>Email:</strong> {profile.email}
-                </p>
-                <p>
-                  <strong>Password:</strong> {profile.password}
-                </p>
-
-                <button onClick={handleEditToggle}>Edit</button>
-              </>
-            )}
+          <div
+            className={`${styles.tabContent} ${styles.personalInfoContainer}`}
+          >
+            <h3 className={styles.sectionTitle}>Personal Information</h3>
+            <div className={styles.personalInfoCard}>
+              {isEditing ? (
+                <>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Name:</label>
+                    <input
+                      className={styles.inputField}
+                      type="text"
+                      name="name"
+                      value={profile.name}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Address:</label>
+                    <input
+                      className={styles.inputField}
+                      type="text"
+                      name="address"
+                      value={profile.address}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Mobile Number:</label>
+                    <input
+                      className={styles.inputField}
+                      type="text"
+                      name="mobile"
+                      value={profile.mobile}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Email:</label>
+                    <input
+                      className={styles.inputField}
+                      type="email"
+                      name="email"
+                      value={profile.email}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Password:</label>
+                    <input
+                      className={styles.inputField}
+                      type="password"
+                      name="password"
+                      value={profile.password}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Customer ID:</label>
+                    <span className={styles.inputStatic}>
+                      {profile.customer_id}
+                    </span>
+                  </div>
+                  <div className={styles.actionButtons}>
+                    <button
+                      className={styles.saveButton}
+                      onClick={handleEditToggle}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className={styles.cancelButton}
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Name:</label>
+                    <span className={styles.infoValue}>{profile.name}</span>
+                  </div>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Address:</label>
+                    <span className={styles.infoValue}>{profile.address}</span>
+                  </div>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Mobile Number:</label>
+                    <span className={styles.infoValue}>{profile.mobile}</span>
+                  </div>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Email:</label>
+                    <span className={styles.infoValue}>{profile.email}</span>
+                  </div>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Password:</label>
+                    <span className={styles.infoValue}>{profile.password}</span>
+                  </div>
+                  <div className={styles.infoGroup}>
+                    <label className={styles.infoLabel}>Customer ID:</label>
+                    <span className={styles.infoValue}>
+                      {profile.customer_id}
+                    </span>
+                  </div>
+                  <button
+                    className={styles.editButton}
+                    onClick={handleEditToggle}
+                  >
+                    Edit
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         );
       default:
@@ -337,11 +450,22 @@ const CustomerDashboard = () => {
     <div className={styles.dashboardContainer}>
       <AIChat />
       <Toaster />
-      <h1>Customer Dashboard</h1>
       <div className={styles.stats}>
         <div className={styles.statCard}>
           <p>Total Appointments</p>
-          <h2>{bookingsData?.getBookingsByCustomerId?.length || 0}</h2>
+          <h2>{totalAppointments}</h2>
+        </div>
+        <div className={styles.statCard}>
+          <p>Upcoming Appointments</p>
+          <h2>{upcomingAppointments}</h2>
+        </div>
+        <div className={styles.statCard}>
+          <p>Completed Services</p>
+          <h2>{completedServices}</h2>
+        </div>
+        <div className={styles.statCard}>
+          <p>Total Spending</p>
+          <h2>${totalSpending}</h2>
         </div>
       </div>
       <div className={styles.tabs}>
@@ -349,11 +473,18 @@ const CustomerDashboard = () => {
           className={activeTab === "appointments" ? styles.activeTab : ""}
           onClick={() => setActiveTab("appointments")}
         >
-          Appointments{" "}
-          {bookingsData?.getBookingsByCustomerId?.length > 0 &&
-            `(${bookingsData.getBookingsByCustomerId.length})`}
+          Appointments
         </button>
-
+        <button
+          className={activeTab === "upcoming" ? styles.activeTab : ""}
+          onClick={() => setActiveTab("upcoming")}
+        >
+          Upcoming Appointments (
+          {bookingsData?.getBookingsByCustomerId?.filter(
+            (booking) => booking.status === "pending"
+          ).length || 0}
+          )
+        </button>
         <button
           className={activeTab === "profile" ? styles.activeTab : ""}
           onClick={() => setActiveTab("profile")}
@@ -362,57 +493,43 @@ const CustomerDashboard = () => {
         </button>
       </div>
       {renderContent()}
-      {showModal && selectedBooking && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <button className={styles.closeButton} onClick={handleCloseModal}>
-              &times;
-            </button>
-            <h2>Appointment Details</h2>
-            <div className={styles.modalContent}>
-              <div className={styles.serviceInfo}>
-                <h3>{selectedBooking.serviceType}</h3>
-                <p>
-                  • Price Rs.
-                  {selectedBooking.price}
-                </p>
-              </div>
-              <div className={styles.serviceCenterInfo}>
-                <p>
-                  <strong>{selectedBooking.serviceCenter.name}</strong>
-                </p>
-                <p>{selectedBooking.serviceCenter.address}</p>
-                <p>Phone: {selectedBooking.serviceCenter.mobile}</p>
-              </div>
-              <div className={styles.dateTime}>
-                <p>
-                  <strong>Date:</strong> {selectedBooking.date}
-                </p>
-                <p>
-                  <strong>Time:</strong> {selectedBooking.time}
-                </p>
-              </div>
-              <div className={styles.status}>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <span className={getStatusClass(selectedBooking.status)}>
-                    {selectedBooking.status}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <button
-              className={styles.closeModalButton}
-              onClick={handleCloseModal}
-            >
+      <footer className={styles.footer}>
+        © 2025 AutoServe Hub. All rights reserved.
+      </footer>
+
+      {/* Popup Card */}
+      {showPopup && selectedBooking && (
+        <div className={styles.popupOverlay}>
+          <div className={styles.popupCard}>
+            <h3>Booking Details</h3>
+            <p>
+              <strong>Service Center:</strong>{" "}
+              {selectedBooking.serviceCenter.name}
+            </p>
+            <p>
+              <strong>Service Type:</strong> {selectedBooking.serviceType}
+            </p>
+            <p>
+              <strong>Date:</strong> {selectedBooking.date}
+            </p>
+            <p>
+              <strong>Time:</strong> {selectedBooking.time}
+            </p>
+            <p>
+              <strong>Price:</strong> Rs.{selectedBooking.price}
+            </p>
+            <p>
+              <strong>Status:</strong>{" "}
+              <span className={getStatusClass(selectedBooking.status)}>
+                {selectedBooking.status}
+              </span>
+            </p>
+            <button className={styles.closeButton} onClick={handleClosePopup}>
               Close
             </button>
           </div>
         </div>
       )}
-      <footer className={styles.footer}>
-        © 2025 AutoServe Hub. All rights reserved.
-      </footer>
     </div>
   );
 };

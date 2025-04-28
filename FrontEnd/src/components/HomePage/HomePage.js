@@ -80,7 +80,7 @@ const HomePage = () => {
           <div key={index} className={styles.card}>
             <img
               src={center.imageurl}
-              alt={`${center.name} image`}
+              alt={center.name}
               className={styles.cardImage}
             />
             <div className={styles.cardContent}>

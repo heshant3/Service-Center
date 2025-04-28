@@ -1,88 +1,193 @@
-.signupContainer {
-  text-align: center;
+.container {
+  display: flex;
+  max-height: 92.4vh;
+}
+
+.leftPanel {
+  flex: 1;
+  background-image: url("https://images.pexels.com/photos/10490600/pexels-photo-10490600.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+}
+
+.overlay h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.rightPanel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
   background-color: #f8f9fa;
-  min-height: 100vh;
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 500px;
+  padding: 0 2rem;
+}
+
+.formContainer h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #1a1f2c;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.userTypes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.userTypeBtn {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
-.signupBox {
-  text-align: left;
-  margin: 0 auto;
-  width: 34em;
-  padding: 2rem;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+.userTypeBtn.active {
+  border-color: #4169e1;
+  background-color: #f0f4ff;
 }
 
-.signupBox h2 {
-  margin-bottom: 0.5rem;
+.userTypeIcon {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+  margin-bottom: 0.5rem;
 }
 
-.signupBox p {
-  margin-bottom: 1.5rem;
-  color: #666;
+.userTypeBtn h3 {
   font-size: 0.9rem;
+  margin: 0;
+  color: #1a1f2c;
 }
 
-.signupBox label {
+.userTypeBtn p {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+}
+
+.form {
+  margin-top: 2rem;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputGroup label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #333;
+  color: #1a1f2c;
 }
 
-.signupBox input {
-  width: 90%;
+.inputGroup input {
+  width: 100%;
   padding: 0.75rem;
-  margin-bottom: 1rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.9rem;
-  background-color: #f9f9f9;
+  font-size: 1rem;
 }
 
-.radioGroup {
+.passwordInput {
+  position: relative;
+}
+
+.showPassword {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+.rememberForgot {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.radioGroup label {
-  font-size: 0.9rem;
-  color: #333;
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
 }
 
-.signupButton {
+.forgotLink {
+  color: #4169e1;
+  text-decoration: none;
+}
+
+.submitBtn {
   width: 100%;
   padding: 0.75rem;
-  background-color: #28a745;
-  color: #ffffff;
+  background-color: #4169e1;
+  color: white;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.signupButton:hover {
-  background-color: #218838;
+.submitBtn:hover {
+  background-color: #3151b7;
 }
 
-.signupBox a {
-  color: #007bff;
+.signupPrompt {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+}
+
+.signupLink {
+  color: #4169e1;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-.signupBox a:hover {
-  text-decoration: underline;
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .leftPanel {
+    height: 200px;
+  }
+
+  .userTypes {
+    grid-template-columns: 1fr;
+  }
 }
