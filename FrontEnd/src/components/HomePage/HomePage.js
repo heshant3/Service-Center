@@ -18,6 +18,7 @@ const GET_ALL_SERVICE_CENTER_DETAILS = gql`
         businesshours
         imageurl
         averageRating
+        ratingCount
         serviceTypes {
           id
           service_center_id
@@ -90,7 +91,7 @@ const HomePage = () => {
               <p className={styles.cardAbout}>{center.about}</p>
               <div className={styles.cardRating}>
                 <span>⭐ {center.averageRating || "N/A"}</span>
-                <span>({center.totalReviews || 0})</span>
+                <span>({center.ratingCount || 0})</span>
               </div>
               <p className={styles.businessHours}>
                 <i className="fas fa-clock"></i> {center.businesshours}

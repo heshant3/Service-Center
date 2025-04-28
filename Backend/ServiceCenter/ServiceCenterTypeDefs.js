@@ -34,6 +34,7 @@ const serviceCenterTypeDefs = gql`
     imageurl: String
     serviceTypes: [ServiceType]
     averageRating: Float # Add averageRating field
+    ratingCount: Int # Add ratingCount field
   }
 
   type ServiceCenterDetailsResponse {

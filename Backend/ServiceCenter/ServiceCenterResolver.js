@@ -58,20 +58,22 @@ module.exports = {
             [center.service_center_id]
           );
 
-          // Fetch average rating from customer_feedback table
+          // Fetch average rating and rating count from customer_feedback table
           const ratingResult = await db.query(
-            `SELECT AVG(rating) AS average_rating 
+            `SELECT AVG(rating) AS average_rating, COUNT(rating) AS rating_count 
              FROM customer_feedback 
              WHERE service_center_id = $1`,
             [center.service_center_id]
           );
 
           const averageRating = ratingResult.rows[0].average_rating || 0;
+          const ratingCount = ratingResult.rows[0].rating_count || 0;
 
           return {
             ...center,
             serviceTypes: serviceTypes.rows,
             averageRating, // Add average rating to the response
+            ratingCount, // Add rating count to the response
           };
         })
       );
