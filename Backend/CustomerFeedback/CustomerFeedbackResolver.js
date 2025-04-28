@@ -63,14 +63,10 @@ module.exports = {
     },
   },
   Mutation: {
-    addFeedback: async (
-      _,
-      { bookingId, customerId, serviceCenterId, feedback, rating },
-      { db }
-    ) => {
-      // Fetch service_type from bookings table
+    addFeedback: async (_, { bookingId, feedback, rating }, { db }) => {
+      // Fetch customer_id and service_center_id from bookings table
       const booking = await db.query(
-        "SELECT service_type FROM bookings WHERE id = $1",
+        "SELECT customer_id, service_center_id, service_type FROM bookings WHERE id = $1",
         [bookingId]
       );
 
@@ -78,7 +74,11 @@ module.exports = {
         throw new Error("Booking not found");
       }
 
-      const serviceType = booking.rows[0].service_type;
+      const {
+        customer_id: customerId,
+        service_center_id: serviceCenterId,
+        service_type: serviceType,
+      } = booking.rows[0];
 
       // Insert feedback into customer_feedback table
       const result = await db.query(

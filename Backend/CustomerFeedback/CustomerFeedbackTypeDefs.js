@@ -21,18 +21,16 @@ const customerFeedbackTypeDefs = gql`
   type Query {
     getFeedbacks: [CustomerFeedback]
     getFeedbackByBookingId(bookingId: ID!): CustomerFeedback
-    getFeedbacksByServiceCenterId(serviceCenterId: ID!): FeedbackStats # Updated return type
+    getFeedbacksByServiceCenterId(serviceCenterId: ID!): FeedbackStats
     getFeedbacksByCustomerId(customerId: ID!): [CustomerFeedback]
   }
 
   type Mutation {
     addFeedback(
       bookingId: ID!
-      customerId: ID
-      serviceCenterId: ID
       feedback: String
       rating: Float
-    ): CustomerFeedback
+    ): CustomerFeedback # Updated mutation to remove customerId and serviceCenterId
   }
 `;
 
