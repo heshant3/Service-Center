@@ -2,6 +2,14 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { toast, Toaster } from "sonner";
+import {
+  FaStar,
+  FaMapMarkerAlt,
+  FaClock,
+  FaPhone,
+  FaEnvelope,
+  FaCheck,
+} from "react-icons/fa";
 import styles from "./ServiceCenterDetails.module.css";
 
 const GET_ALL_SERVICE_CENTER_DETAILS_BY_ID = gql`
@@ -163,54 +171,74 @@ const ServiceCenterDetails = () => {
   return (
     <div className={styles.container}>
       <Toaster />
-      <div className={styles.header}>
-        <div className={styles.imageContainer}>
-          {center.imageurl ? (
-            <img
-              src={center.imageurl}
-              alt={center.name}
-              className={styles.image}
-            />
-          ) : (
-            <div className={styles.imagePlaceholder}>No Image</div>
-          )}
-        </div>
-        <div className={styles.detailsContainer}>
-          <div>
-            <h1 className={styles.title}>{center.name}</h1>
-            <div className={styles.location}>
-              <span className={styles.locationIcon}>📍</span>
-              <span>{center.address}</span>
-            </div>
-            <p className={styles.description}>{center.about}</p>
-            <div className={styles.rating}>
-              <span className={styles.ratingScore}>
-                {feedbackData?.getFeedbacksByServiceCenterId.averageRating || 0}
-              </span>
-              <div className={styles.stars}>★★★★★</div>
-              <span className={styles.reviews}>
-                Based on{" "}
-                {feedbackData?.getFeedbacksByServiceCenterId.ratingCount || 0}{" "}
-                reviews
-              </span>
-            </div>
+      <div className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <div className={styles.imageContainer}>
+            {center.imageurl ? (
+              <img
+                src={center.imageurl}
+                alt={center.name}
+                className={styles.image}
+              />
+            ) : (
+              <div className={styles.imagePlaceholder}>No Image</div>
+            )}
           </div>
-          <div>
-            <button className={styles.bookButton} onClick={handleOpenModal}>
-              Book Now
-            </button>
-            <div className={styles.features}>
-              <div className={styles.featureItem}>
-                <span className={styles.checkIcon}>✓</span>
-                <span>Instant confirmation</span>
+          <div className={styles.detailsContainer}>
+            <div className={styles.headerContent}>
+              <h1 className={styles.title}>{center.name}</h1>
+              <div className={styles.location}>
+                <FaMapMarkerAlt className={styles.locationIcon} />
+                <span>{center.address}</span>
               </div>
-              <div className={styles.featureItem}>
-                <span className={styles.checkIcon}>✓</span>
-                <span>Transparent pricing</span>
+              <div className={styles.rating}>
+                <div className={styles.ratingScore}>
+                  <span className={styles.score}>
+                    {feedbackData?.getFeedbacksByServiceCenterId
+                      .averageRating || 0}
+                  </span>
+                  <div className={styles.stars}>
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar
+                        key={i}
+                        className={
+                          i <
+                          Math.round(
+                            feedbackData?.getFeedbacksByServiceCenterId
+                              .averageRating || 0
+                          )
+                            ? styles.starFilled
+                            : styles.starEmpty
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+                <span className={styles.reviews}>
+                  Based on{" "}
+                  {feedbackData?.getFeedbacksByServiceCenterId.ratingCount || 0}{" "}
+                  reviews
+                </span>
               </div>
-              <div className={styles.featureItem}>
-                <span className={styles.checkIcon}>✓</span>
-                <span>Free cancellation 24h in advance</span>
+              <p className={styles.description}>{center.about}</p>
+            </div>
+            <div className={styles.bookingSection}>
+              <button className={styles.bookButton} onClick={handleOpenModal}>
+                Book Now
+              </button>
+              <div className={styles.features}>
+                <div className={styles.featureItem}>
+                  <FaCheck className={styles.checkIcon} />
+                  <span>Instant confirmation</span>
+                </div>
+                <div className={styles.featureItem}>
+                  <FaCheck className={styles.checkIcon} />
+                  <span>Transparent pricing</span>
+                </div>
+                <div className={styles.featureItem}>
+                  <FaCheck className={styles.checkIcon} />
+                  <span>Free cancellation 24h in advance</span>
+                </div>
               </div>
             </div>
           </div>
@@ -220,19 +248,25 @@ const ServiceCenterDetails = () => {
       <div className={styles.infoSection}>
         <div className={styles.infoCard}>
           <div className={styles.infoCardTitle}>
-            <span className={styles.infoIcon}>🕒</span>
+            <FaClock className={styles.infoIcon} />
             <span>Business Hours</span>
           </div>
           <div className={styles.infoContent}>{center.businesshours}</div>
         </div>
         <div className={styles.infoCard}>
           <div className={styles.infoCardTitle}>
-            <span className={styles.infoIcon}>📞</span>
+            <FaPhone className={styles.infoIcon} />
             <span>Contact</span>
           </div>
           <div className={styles.infoContent}>
-            <div className={styles.contactInfo}>{center.mobile}</div>
-            <div className={styles.contactInfo}>{center.email}</div>
+            <div className={styles.contactInfo}>
+              <FaPhone className={styles.contactIcon} />
+              {center.mobile}
+            </div>
+            <div className={styles.contactInfo}>
+              <FaEnvelope className={styles.contactIcon} />
+              {center.email}
+            </div>
           </div>
         </div>
       </div>
@@ -244,30 +278,37 @@ const ServiceCenterDetails = () => {
             <span>Service Type</span>
             <span>Price (Rs)</span>
           </div>
-          <div className={styles.pricingRow}>
-            <span>Basic Service</span>
-            <span>{center.serviceTypes[0].basic_price}</span>
-          </div>
-          <div className={styles.pricingRow}>
-            <span>Half Service</span>
-            <span>{center.serviceTypes[0].half_service_price}</span>
-          </div>
-          <div className={styles.pricingRow}>
-            <span>Full Service</span>
-            <span>{center.serviceTypes[0].full_service_price}</span>
-          </div>
-          <div className={styles.pricingRow}>
-            <span>Comprehensive Service</span>
-            <span>{center.serviceTypes[0].comprehensive_price}</span>
-          </div>
+          {[
+            {
+              name: "Basic Service",
+              price: center.serviceTypes[0].basic_price,
+            },
+            {
+              name: "Half Service",
+              price: center.serviceTypes[0].half_service_price,
+            },
+            {
+              name: "Full Service",
+              price: center.serviceTypes[0].full_service_price,
+            },
+            {
+              name: "Comprehensive Service",
+              price: center.serviceTypes[0].comprehensive_price,
+            },
+          ].map((service, index) => (
+            <div key={index} className={styles.pricingRow}>
+              <span>{service.name}</span>
+              <span>Rs. {service.price}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className={styles.reviewsSection}>
-        <h2 className={styles.sectionTitle}>What Our Customers Say</h2>
+        <h2 className={styles.sectionTitle}>Customer Reviews</h2>
         <div className={styles.reviewsContainer}>
           {feedbackData?.getFeedbacksByServiceCenterId.feedbacks
-            .slice(0, visibleReviews) // Show only the visible reviews
+            .slice(0, visibleReviews)
             .map((feedback) => (
               <div key={feedback.id} className={styles.reviewCard}>
                 <div className={styles.reviewHeader}>
@@ -279,15 +320,25 @@ const ServiceCenterDetails = () => {
                       {feedback.customerName}
                     </div>
                     <div className={styles.stars}>
-                      {"★".repeat(feedback.rating)}
-                      {"☆".repeat(5 - feedback.rating)}
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={
+                            i < feedback.rating
+                              ? styles.starFilled
+                              : styles.starEmpty
+                          }
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>
                 <p className={styles.reviewText}>{feedback.feedback}</p>
                 <div className={styles.reviewMeta}>
                   <span>{new Date().toLocaleDateString()}</span>
-                  <span>{feedback.serviceType}</span>
+                  <span className={styles.serviceType}>
+                    {feedback.serviceType}
+                  </span>
                 </div>
               </div>
             ))}
@@ -298,7 +349,7 @@ const ServiceCenterDetails = () => {
             className={styles.viewAllButton}
             onClick={handleShowMoreReviews}
           >
-            Show More
+            Show More Reviews
           </button>
         )}
       </div>
@@ -310,31 +361,47 @@ const ServiceCenterDetails = () => {
               &times;
             </button>
             <h2>Book Service at {center.name}</h2>
-            <label>Select Service</label>
-            <select value={selectedService} onChange={handleServiceChange}>
-              <option value="">Select Service</option>
-              <option value="Basic Service">Basic Service</option>
-              <option value="Half Service">Half Service</option>
-              <option value="Full Service">Full Service</option>
-              <option value="Comprehensive Service">
-                Comprehensive Service
-              </option>
-            </select>
-            <label>Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <label>Time</label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
-            {price && <p>Price: Rs.{price}</p>}
+            <div className={styles.formGroup}>
+              <label>Select Service</label>
+              <select value={selectedService} onChange={handleServiceChange}>
+                <option value="">Select Service</option>
+                <option value="Basic Service">Basic Service</option>
+                <option value="Half Service">Half Service</option>
+                <option value="Full Service">Full Service</option>
+                <option value="Comprehensive Service">
+                  Comprehensive Service
+                </option>
+              </select>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Time</label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+              />
+            </div>
+            {price && (
+              <div className={styles.priceDisplay}>
+                <span>Total Price:</span>
+                <span className={styles.price}>Rs. {price}</span>
+              </div>
+            )}
             <div className={styles.modalActions}>
-              <button onClick={handleCloseModal}>Cancel</button>
+              <button
+                className={styles.cancelButton}
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
               <button
                 className={styles.confirmButton}
                 disabled={!isFormValid}

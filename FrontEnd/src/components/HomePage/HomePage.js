@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
-import { FaSearch } from "react-icons/fa"; // Import search icon
+import {
+  FaSearch,
+  FaStar,
+  FaClock,
+  FaMapMarkerAlt,
+  FaFilter,
+} from "react-icons/fa";
 import styles from "./HomePage.module.css";
 
 const GET_ALL_SERVICE_CENTER_DETAILS = gql`
@@ -37,6 +43,8 @@ const HomePage = () => {
   const { loading, error, data } = useQuery(GET_ALL_SERVICE_CENTER_DETAILS);
   const [serviceCenters, setServiceCenters] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRating, setSelectedRating] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     if (data && data.getAllServiceCenterDetails) {
@@ -48,54 +56,102 @@ const HomePage = () => {
     navigate(`/service-center-details/${service_center_id}`);
   };
 
-  const filteredServiceCenters = serviceCenters.filter((center) =>
-    center.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServiceCenters = serviceCenters.filter((center) => {
+    const matchesSearch =
+      center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      center.address.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRating =
+      selectedRating === "all" ||
+      center.averageRating >= parseFloat(selectedRating);
+    return matchesSearch && matchesRating;
+  });
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading service centers.</p>;
+  if (loading)
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Loading service centers...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className={styles.errorContainer}>
+        <p>Error loading service centers. Please try again later.</p>
+      </div>
+    );
 
   return (
     <div className={styles.homeContainer}>
-      <div className={styles.searchSection}>
-        <h1 className={styles.searchTitle}>Find the Best Service Centers</h1>
-        <p className={styles.searchSubtitle}>
-          Search and explore top-rated service centers near you
-        </p>
-        <div className={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search by address or name"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-          />
-          <button className={styles.searchButton}>
-            <FaSearch />
-          </button>
+      <div className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Find Your Perfect Service Center</h1>
+          <p className={styles.heroSubtitle}>
+            Discover top-rated service centers near you with expert mechanics
+            and quality service
+          </p>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchBar}>
+              <FaSearch className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by name or location..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+              <button
+                className={styles.filterButton}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <FaFilter /> Filters
+              </button>
+            </div>
+            {showFilters && (
+              <div className={styles.filtersPanel}>
+                <div className={styles.filterGroup}>
+                  <label>Rating:</label>
+                  <select
+                    value={selectedRating}
+                    onChange={(e) => setSelectedRating(e.target.value)}
+                    className={styles.filterSelect}
+                  >
+                    <option value="all">All Ratings</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
       <div className={styles.serviceCards}>
         {filteredServiceCenters.map((center, index) => (
           <div key={index} className={styles.card}>
-            <img
-              src={center.imageurl}
-              alt={center.name}
-              className={styles.cardImage}
-            />
+            <div className={styles.cardImageContainer}>
+              <img
+                src={center.imageurl}
+                alt={center.name}
+                className={styles.cardImage}
+              />
+              <div className={styles.ratingBadge}>
+                <FaStar /> {center.averageRating?.toFixed(1) || "New"}
+              </div>
+            </div>
             <div className={styles.cardContent}>
               <h3 className={styles.cardTitle}>{center.name}</h3>
-              <p className={styles.cardAddress}>
-                <i className="fas fa-map-marker-alt"></i> {center.address}
-              </p>
-              <p className={styles.cardAbout}>{center.about}</p>
-              <div className={styles.cardRating}>
-                <span>⭐ {center.averageRating || "0"}</span>
-                <span>({center.ratingCount || 0})</span>
+              <div className={styles.cardInfo}>
+                <p className={styles.cardAddress}>
+                  <FaMapMarkerAlt /> {center.address}
+                </p>
+                <p className={styles.businessHours}>
+                  <FaClock /> {center.businesshours}
+                </p>
               </div>
-              <p className={styles.businessHours}>
-                <i className="fas fa-clock"></i> {center.businesshours}
-              </p>
+              <p className={styles.cardAbout}>{center.about}</p>
               <div className={styles.serviceTags}>
                 {center.serviceTypes.map((service) => (
                   <span key={service.id} className={styles.serviceTag}>
@@ -113,6 +169,13 @@ const HomePage = () => {
           </div>
         ))}
       </div>
+
+      {filteredServiceCenters.length === 0 && (
+        <div className={styles.noResults}>
+          <h3>No service centers found</h3>
+          <p>Try adjusting your search criteria</p>
+        </div>
+      )}
     </div>
   );
 };
