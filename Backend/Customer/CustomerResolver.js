@@ -7,14 +7,14 @@ module.exports = {
         .query("SELECT * FROM customersdata")
         .then((res) => res.rows);
     },
-    getCustomerDataById: async (_, { id }, { db }) => {
+    getCustomerDataById: async (_, { customer_id }, { db }) => {
       return await db
         .query(
           `SELECT cd.*, c.email, c.password 
            FROM customersdata cd 
            JOIN customers c ON cd.customer_id = c.id 
-           WHERE cd.id = $1`,
-          [id]
+           WHERE cd.customer_id = $1`,
+          [customer_id]
         )
         .then((res) => res.rows[0]);
     },
@@ -51,7 +51,7 @@ module.exports = {
     },
     updateCustomerData: async (
       _,
-      { id, name, mobile, address, customer_id, email, password },
+      { customer_id, name, mobile, address, email, password },
       { db }
     ) => {
       let hashedPassword = null;
@@ -63,11 +63,10 @@ module.exports = {
         `UPDATE customersdata 
          SET name = COALESCE($1, name), 
              mobile = COALESCE($2, mobile), 
-             address = COALESCE($3, address), 
-             customer_id = COALESCE($4, customer_id) 
-         WHERE id = $5 
+             address = COALESCE($3, address)
+         WHERE customer_id = $4 
          RETURNING *`,
-        [name, mobile, address, customer_id, id]
+        [name, mobile, address, customer_id]
       );
 
       if (email || hashedPassword) {
@@ -75,8 +74,8 @@ module.exports = {
           `UPDATE customers 
            SET email = COALESCE($1, email), 
                password = COALESCE($2, password) 
-           WHERE id = (SELECT customer_id FROM customersdata WHERE id = $3)`,
-          [email, hashedPassword, id]
+           WHERE id = $3`,
+          [email, hashedPassword, customer_id]
         );
       }
 

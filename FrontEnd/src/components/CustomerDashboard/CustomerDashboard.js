@@ -7,8 +7,8 @@ import AddReview from "../AddReview/AddReview"; // Import AddReview component
 
 // GraphQL query to fetch customer data by ID
 const GET_CUSTOMER_DATA_BY_ID = gql`
-  query GetCustomerDataById($id: ID!) {
-    getCustomerDataById(id: $id) {
+  query GetCustomerDataById($customer_id: Int!) {
+    getCustomerDataById(customer_id: $customer_id) {
       id
       name
       mobile
@@ -22,20 +22,18 @@ const GET_CUSTOMER_DATA_BY_ID = gql`
 // GraphQL mutation to update customer data
 const UPDATE_CUSTOMER_DATA = gql`
   mutation UpdateCustomerData(
-    $id: ID!
+    $customer_id: Int!
     $name: String
     $mobile: String
     $address: String
-    $customer_id: Int
     $email: String
     $password: String
   ) {
     updateCustomerData(
-      id: $id
+      customer_id: $customer_id
       name: $name
       mobile: $mobile
       address: $address
-      customer_id: $customer_id
       email: $email
       password: $password
     ) {
@@ -112,7 +110,7 @@ const CustomerDashboard = () => {
 
   // Use Apollo Client's useQuery hook to fetch data
   const { data, loading, error } = useQuery(GET_CUSTOMER_DATA_BY_ID, {
-    variables: { id: customerId },
+    variables: { customer_id: parseInt(customerId) },
     skip: !customerId, // Skip query if customerId is not available
   });
 
@@ -224,7 +222,7 @@ const CustomerDashboard = () => {
         if (Object.keys(updatedFields).length > 0) {
           await updateCustomerData({
             variables: {
-              id: customerId,
+              customer_id: parseInt(customerId),
               ...updatedFields,
             },
           });

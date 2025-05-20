@@ -26,7 +26,7 @@ const customerTypeDefs = gql`
 
   type Query {
     getCustomersData: [CustomerData]
-    getCustomerDataById(id: ID!): CustomerData
+    getCustomerDataById(customer_id: Int!): CustomerData
     getAllCustomerDetails: CustomerDetailsResponse
   }
 
@@ -38,11 +38,10 @@ const customerTypeDefs = gql`
       customer_id: Int
     ): CustomerData
     updateCustomerData(
-      id: ID!
+      customer_id: Int!
       name: String
       mobile: String
       address: String
-      customer_id: Int
       email: String
       password: String
     ): CustomerData
