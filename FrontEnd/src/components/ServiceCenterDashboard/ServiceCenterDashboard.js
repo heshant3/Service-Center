@@ -131,6 +131,11 @@ const COMPLETE_BOOKING_BY_ID = gql`
   }
 `;
 
+// Mask password for display (always show 7 asterisks if password exists)
+function maskPassword(password) {
+  return password ? "*******" : "";
+}
+
 const ServiceCenterDashboard = () => {
   const [activeTab, setActiveTab] = useState("appointments");
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -500,24 +505,25 @@ const ServiceCenterDashboard = () => {
                   key !== "service_center_id" && (
                     <div key={key} className={styles.profileField}>
                       <label className={styles.profileLabel}>
-                        {key.replace(/_/g, " ").toUpperCase()}:
+                        {key.replace(/_/g, " ").toUpperCase()}
                       </label>
                       {isEditingProfile ? (
                         <input
-                          type="text"
+                          type={key === "password" ? "password" : "text"}
                           name={key}
-                          value={tempProfile[key] || profile[key]} // Show previously entered data
-                          placeholder={`Please enter your ${key.replace(
-                            /_/g,
-                            " "
-                          )}`}
+                          value={tempProfile[key] || ""}
+                          placeholder={`Enter your ${key.replace(/_/g, " ")}`}
                           onChange={handleProfileChange}
                           className={styles.profileInput}
                         />
                       ) : (
                         <div className={styles.profileValue}>
-                          {profile[key] ||
-                            `Please enter your ${key.replace(/_/g, " ")}`}
+                          {key === "password"
+                            ? profile[key]
+                              ? maskPassword(profile[key])
+                              : `No ${key.replace(/_/g, " ")} provided`
+                            : profile[key] ||
+                              `No ${key.replace(/_/g, " ")} provided`}
                         </div>
                       )}
                     </div>
@@ -531,7 +537,7 @@ const ServiceCenterDashboard = () => {
                     className={styles.saveButton}
                     onClick={handleSaveProfile}
                   >
-                    Save
+                    Save Changes
                   </button>
                   <button
                     className={styles.cancelButton}
@@ -549,6 +555,7 @@ const ServiceCenterDashboard = () => {
                 </button>
               )}
             </div>
+
             <div className={styles.serviceTypesContainer}>
               <h2 className={styles.sectionTitle}>Service Types & Prices</h2>
               <ul className={styles.serviceTypeList}>
@@ -563,10 +570,11 @@ const ServiceCenterDashboard = () => {
                           handleServiceChange(index, "price", e.target.value)
                         }
                         className={styles.serviceTypeInput}
+                        placeholder="Enter price"
                       />
                     ) : (
                       <div className={styles.serviceTypePrice}>
-                        Rs. {service.price}
+                        Rs. {service.price.toLocaleString()}
                       </div>
                     )}
                   </li>
@@ -579,7 +587,7 @@ const ServiceCenterDashboard = () => {
                       className={styles.saveButton}
                       onClick={handleSaveServices}
                     >
-                      Save
+                      Save Prices
                     </button>
                     <button
                       className={styles.cancelButton}
@@ -593,7 +601,7 @@ const ServiceCenterDashboard = () => {
                     className={styles.editButton}
                     onClick={() => setIsEditingServices(true)}
                   >
-                    Edit Services
+                    Edit Prices
                   </button>
                 )}
               </div>
