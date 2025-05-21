@@ -160,6 +160,8 @@ const ServiceCenterDashboard = () => {
   const serviceCenterId =
     parseInt(localStorage.getItem("serviceCenterId"), 10) || 1;
 
+  console.log("Service Center ID:", serviceCenterId); // Log the service center ID
+
   const { data, loading, error, refetch } = useQuery(
     GET_SERVICE_CENTER_DATA_BY_SERVICE_CENTER_ID,
     {
@@ -180,7 +182,11 @@ const ServiceCenterDashboard = () => {
     loading: bookingsLoading,
     error: bookingsError,
   } = useQuery(GET_BOOKINGS_BY_SERVICE_CENTER_ID, {
-    variables: { serviceCenterId },
+    variables: {
+      serviceCenterId:
+        data?.getServiceCenterDataByServiceCenterId?.id || serviceCenterId,
+    },
+    skip: !data?.getServiceCenterDataByServiceCenterId?.id,
   });
 
   const [updateServiceCenterData] = useMutation(UPDATE_SERVICE_CENTER_DATA);
